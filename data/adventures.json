@@ -1,0 +1,138 @@
+{
+  "_opis": "Prolog i przygody. Plansza: cel = pokonaj_wszystkich | zabij_bossa | przetrwaj (czas) | zbierz_lup (ile). fale: t = sekunda planszy, wrogowie = {id: liczba}. petla_fal = fale powtarzają się co N sekund aż do spełnienia celu. skala_hp / skala_obrazen mnożą wrogów tej planszy. Co piąta plansza to boss. Trudności mnożą HP, obrażenia, liczbę wrogów i nagrody; kolejną trudność dodaje się wpisem w 'trudnosci'.",
+  "trudnosci": {
+    "normal":   { "nazwa": "Normal",   "hp": 1.0, "obrazenia": 1.0, "liczba": 1.0, "zloto": 1.0, "klejnoty_za_bossa": 0, "limit_czasu": 0,   "ranking": false },
+    "hard":     { "nazwa": "Hard",     "hp": 1.7, "obrazenia": 1.4, "liczba": 1.3, "zloto": 1.6, "klejnoty_za_bossa": 2, "limit_czasu": 0,   "ranking": false },
+    "hardcore": { "nazwa": "Hardcore", "hp": 2.6, "obrazenia": 1.9, "liczba": 1.6, "zloto": 2.4, "klejnoty_za_bossa": 5, "limit_czasu": 150, "ranking": true }
+  },
+  "kolejnosc_trudnosci": ["normal", "hard", "hardcore"],
+
+  "prolog_karczma": {
+    "_opis": "Minigra: Borubar sam biegnie po kufle, gracz strzela w klientów. x w pikselach podłogi karczmy.",
+    "nazwa": "Karczma \"Pod Złotym Kuflem\"",
+    "poziom_grafiki": "karczma",
+    "muzyka": "karczma",
+    "kufle_cel": 6,
+    "czas_lotu": 3.2,
+    "przerwa": 1.3,
+    "podloga_y": 600,
+    "podloga_x": [150, 1000],
+    "barman_x": 1140,
+    "barman_y": 600,
+    "borubar_start_x": 560,
+    "borubar_predkosc": 150,
+    "klient_predkosc": 205,
+    "promien_lapania": 46,
+    "klienci_domy_x": [220, 420, 760, 930],
+    "klienci_po_zlapanych": [0, 1, 1, 2, 2, 3],
+    "strzal": { "promien": 115, "odrzut": 180, "spowolnienie": 0.6, "czas": 1.8, "odnowienie": 0.35 },
+    "podpowiedzi": [
+      "Barman rzuca kufle. Borubar sam biegnie je łapać - patrz, gdzie spadnie kufel (cień na podłodze).",
+      "Inni goście też chcą piwa! Dotknij ekranu obok gościa: strzał z nieba odpycha go i spowalnia.",
+      "Strzelaj tuż przed tym, jak kufel spadnie - wtedy gość nie zdąży wrócić.",
+      "Coraz większy tłok. Odpychaj tych, którzy są najbliżej cienia kufla."
+    ]
+  },
+
+  "kolejnosc": ["piwnice_carroburga", "trakt_do_hufduhofu", "odbicie_hufduhofu"],
+  "przygody": {
+    "prolog_wies": {
+      "nazwa": "Ucieczka z Hufduhofu",
+      "opis": "Borubar ucieka przez płonącą wieś z ostatnią beczką piwa.",
+      "prolog": true,
+      "poziom_grafiki": "hufduhof",
+      "muzyka": "wioska",
+      "druzyna_wymuszona": ["borubar"],
+      "strzal_mnoznik": 3.0,
+      "ucieczka": true,
+      "plansze": [
+        { "cel": "pokonaj_wszystkich", "opis": "Szczury zastępują drogę!",
+          "podpowiedz": "Borubar jest twardy, ale bije rzadko i słabo. Dotykaj wrogów - strzały z nieba ranią ich i ogłuszają.",
+          "fale": [ { "t": 0.5, "wrogowie": { "szczur": 3 } }, { "t": 7.0, "wrogowie": { "szczur": 3 } } ] },
+        { "cel": "pokonaj_wszystkich", "opis": "Strzelcy na dachach",
+          "podpowiedz": "Szczury Strzelcy stoją z daleka - Borubar do nich nie dosięgnie. Zestrzel ich sam.",
+          "fale": [ { "t": 0.5, "wrogowie": { "szczur": 4, "szczur_strzelec": 2 } }, { "t": 9.0, "wrogowie": { "szczur": 3, "szczur_strzelec": 2 } } ] },
+        { "cel": "zbierz_lup", "ile": 8, "opis": "Rozsypane talary karczmy", "petla_fal": 8.0,
+          "podpowiedz": "Cel planszy bywa różny. Tu zbierasz łup: każdy pokonany wróg upuszcza sakiewkę.",
+          "fale": [ { "t": 0.5, "wrogowie": { "szczur": 4, "szczur_mag": 1 } }, { "t": 5.0, "wrogowie": { "szczur": 3, "szczur_strzelec": 1 } } ] },
+        { "cel": "pokonaj_wszystkich", "opis": "Sfora Chaosu",
+          "podpowiedz": "Psy Chaosu są szybkie, a Zwierzoczłek bardzo wytrzymały. Ogłuszaj ich strzałami.",
+          "fale": [ { "t": 0.5, "wrogowie": { "pies_chaosu": 2, "szczur": 3 } }, { "t": 9.0, "wrogowie": { "zwierzoczlek": 1, "szczur_strzelec": 2 } } ] },
+        { "cel": "zabij_bossa", "opis": "Champion Chaosu", "boss": true,
+          "podpowiedz": "Champion Chaosu! Jego pancerza nie przebije ani beczka, ani twoje strzały...",
+          "przegrana_fabularna": true, "niesmiertelni": ["czempion_chaosu"], "skala_obrazen": 3.2,
+          "fale": [ { "t": 1.0, "wrogowie": { "czempion_chaosu": 1 } } ] }
+      ],
+      "po_przegranej": [
+        "Borubar pada pod ciosem runicznego miecza. Beczka toczy się w błoto.",
+        "Budzi się w koszarach Szkarłatnej Gwardii w Carroburgu. Opatrzył go gwardzista Ivo Eggert.",
+        "\"Sam nie dasz rady. Ale drużyna - to co innego.\"",
+        "Od teraz dowodzisz drużyną. Zbierz bohaterów, ustaw formację i odbij Hufduhof."
+      ]
+    },
+
+    "piwnice_carroburga": {
+      "nazwa": "Piwnice Carroburga",
+      "opis": "Pod koszarami zalęgły się szczury. Dobre miejsce, żeby drużyna nabrała wprawy.",
+      "poziom_grafiki": "piwnice",
+      "muzyka": "walka",
+      "nagroda_korony": 60,
+      "plansze": [
+        { "cel": "pokonaj_wszystkich", "opis": "Szczury w spiżarni",
+          "fale": [ { "t": 0.5, "wrogowie": { "szczur": 3 } }, { "t": 12.0, "wrogowie": { "szczur": 3 } } ] },
+        { "cel": "pokonaj_wszystkich", "opis": "Procarze w korytarzu",
+          "fale": [ { "t": 0.5, "wrogowie": { "szczur": 4, "szczur_strzelec": 1 } }, { "t": 14.0, "wrogowie": { "szczur": 3, "szczur_strzelec": 1 } } ] },
+        { "cel": "zbierz_lup", "ile": 8, "opis": "Skradzione zapasy", "petla_fal": 12.0,
+          "fale": [ { "t": 0.5, "wrogowie": { "szczur": 4 } }, { "t": 6.0, "wrogowie": { "szczur": 2, "szczur_strzelec": 1 } } ] },
+        { "cel": "przetrwaj", "czas": 45, "opis": "Zasadzka w kanale", "petla_fal": 11.0,
+          "fale": [ { "t": 0.5, "wrogowie": { "szczur": 4, "szczur_mag": 1 } }, { "t": 6.0, "wrogowie": { "szczur": 3, "szczur_strzelec": 1 } } ] },
+        { "cel": "zabij_bossa", "opis": "Szczurzy Herszt", "boss": true,
+          "fale": [ { "t": 1.0, "wrogowie": { "szczurzy_herszt": 1, "szczur": 2 } }, { "t": 20.0, "wrogowie": { "szczur": 3 } } ] }
+      ]
+    },
+
+    "trakt_do_hufduhofu": {
+      "nazwa": "Trakt do Hufduhofu",
+      "opis": "Na trakcie grasują Psy Chaosu i Zwierzoludzie. Psy przeskakują pierwszą linię - pilnuj tyłów.",
+      "poziom_grafiki": "trakt",
+      "muzyka": "walka",
+      "wymaga": "piwnice_carroburga",
+      "nagroda_korony": 150,
+      "skala_hp": 1.5, "skala_obrazen": 1.3,
+      "plansze": [
+        { "cel": "pokonaj_wszystkich", "opis": "Sfora na trakcie",
+          "fale": [ { "t": 0.5, "wrogowie": { "pies_chaosu": 2, "szczur": 3 } }, { "t": 14.0, "wrogowie": { "pies_chaosu": 2 } } ] },
+        { "cel": "pokonaj_wszystkich", "opis": "Zwierzoludzie przy wozie",
+          "fale": [ { "t": 0.5, "wrogowie": { "zwierzoczlek": 2 } }, { "t": 12.0, "wrogowie": { "zwierzoczlek": 1, "szczur_strzelec": 2 } } ] },
+        { "cel": "przetrwaj", "czas": 60, "opis": "Obrona brodu", "petla_fal": 12.0,
+          "fale": [ { "t": 0.5, "wrogowie": { "szczur": 4, "pies_chaosu": 1 } }, { "t": 6.0, "wrogowie": { "zwierzoczlek": 1, "szczur_mag": 1 } } ] },
+        { "cel": "pokonaj_wszystkich", "opis": "Spaczeniowy krąg",
+          "fale": [ { "t": 0.5, "wrogowie": { "szczur_mag": 2, "zwierzoczlek": 2 } }, { "t": 15.0, "wrogowie": { "pies_chaosu": 3, "szczur_strzelec": 2 } } ] },
+        { "cel": "zabij_bossa", "opis": "Wódz Zwierzoludzi", "boss": true,
+          "fale": [ { "t": 1.0, "wrogowie": { "wodz_zwierzoludzi": 1, "zwierzoczlek": 1 } }, { "t": 25.0, "wrogowie": { "pies_chaosu": 2 } } ] }
+      ]
+    },
+
+    "odbicie_hufduhofu": {
+      "nazwa": "Odbicie Hufduhofu",
+      "opis": "Powrót do wsi. Champion Chaosu nosi ciężki pancerz - zwykła stal ledwie go drapie. Potrzeba magii i dobrej formacji.",
+      "poziom_grafiki": "hufduhof",
+      "muzyka": "wioska",
+      "wymaga": "trakt_do_hufduhofu",
+      "nagroda_korony": 400,
+      "skala_hp": 2.0, "skala_obrazen": 1.4,
+      "plansze": [
+        { "cel": "pokonaj_wszystkich", "opis": "Straże przy bramie",
+          "fale": [ { "t": 0.5, "wrogowie": { "zwierzoczlek": 2, "szczur_strzelec": 2 } }, { "t": 14.0, "wrogowie": { "pies_chaosu": 3 } } ] },
+        { "cel": "zbierz_lup", "ile": 12, "opis": "Zrabowane dobra", "petla_fal": 12.0,
+          "fale": [ { "t": 0.5, "wrogowie": { "szczur": 5, "szczur_mag": 1 } }, { "t": 6.0, "wrogowie": { "zwierzoczlek": 1, "szczur_strzelec": 2 } } ] },
+        { "cel": "pokonaj_wszystkich", "opis": "Plac przed karczmą",
+          "fale": [ { "t": 0.5, "wrogowie": { "zwierzoczlek": 3, "szczur_mag": 2 } }, { "t": 16.0, "wrogowie": { "pies_chaosu": 3, "zwierzoczlek": 1 } } ] },
+        { "cel": "przetrwaj", "czas": 75, "opis": "Kontratak", "petla_fal": 12.0,
+          "fale": [ { "t": 0.5, "wrogowie": { "pies_chaosu": 2, "szczur": 4 } }, { "t": 6.0, "wrogowie": { "zwierzoczlek": 2, "szczur_mag": 1 } } ] },
+        { "cel": "zabij_bossa", "opis": "Champion Chaosu", "boss": true,
+          "fale": [ { "t": 1.0, "wrogowie": { "czempion_chaosu": 1 } }, { "t": 30.0, "wrogowie": { "zwierzoczlek": 2 } } ] }
+      ]
+    }
+  }
+}

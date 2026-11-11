@@ -1,0 +1,54 @@
+{
+  "_opis": "Wszystkie liczby balansu. Czasy w sekundach, odległości w pikselach ekranu 1280x720. Cechy WFRP: główne 0-100.",
+  "walka": {
+    "tick": 0.1,
+    "hp_na_zyw": 10.0,
+    "szansa_bazowa_wrecz": 0.55,
+    "szansa_bazowa_dystans": 0.35,
+    "szansa_bazowa_magia": 0.6,
+    "min_szansa": 0.2,
+    "max_szansa": 0.95,
+    "unik_dzielnik": 500.0,
+    "sz_bazowa": 4.0,
+    "sz_krok": 0.06,
+    "min_czas_ataku": 0.8,
+    "odpornosc_magii_dzielnik": 20.0,
+    "linia_frontu_x": 430,
+    "linia_tylu_x": 290,
+    "tory_y": [340, 410, 480, 550, 620],
+    "spawn_x": 1340,
+    "ekran_x": 1260,
+    "kontakt_wrecz": 78,
+    "leczenie_miedzy_planszami": 0.3,
+    "odpornosc_na_ogluszenie_po": 1.5
+  },
+  "strzal_gracza": {
+    "_opis": "Kliknięcie/tapnięcie w pole bitwy: pocisk z nieba. Ma pomagać, nie zastępować drużyny.",
+    "obrazenia": 1.5,
+    "promien": 64,
+    "ogluszenie": 0.5,
+    "odnowienie": 0.6,
+    "ogluszenie_bossa_mnoznik": 0.3
+  },
+  "boss": {
+    "_opis": "Narastające zagrożenie: co 'furia_co_s' sekund boss dostaje kolejny stopień furii.",
+    "furia_co_s": 10.0,
+    "furia_obrazenia": 0.1,
+    "furia_szybkosc": 0.06,
+    "furia_max": 12
+  },
+  "progresja": {
+    "max_poziom": 20,
+    "koszt_poziomu_baza": 15,
+    "koszt_poziomu_mnoznik": 1.3,
+    "miejsca_start": 2,
+    "miejsca_za_ukonczone_przygody": 2,
+    "miejsca_max": 10
+  },
+  "ekonomia": {
+    "favor_za_przygode": 0.05,
+    "ogd_na_procent_zlota": 10.0,
+    "szansa_przedmiotu_boss": 1.0,
+    "wagi_rzadkosci": { "common": 60, "uncommon": 25, "rare": 10, "epic": 4, "legendary": 1 }
+  }
+}

@@ -1,0 +1,37 @@
+# Automatyczne testy (GUT) i budowa APK (debug) po każdym wypchnięciu na main.
+# Gotowy plik: zakładka Actions -> ostatnie uruchomienie -> Artifacts -> champions-apk.
+name: Testy i APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  apk:
+    runs-on: ubuntu-22.04
+    container:
+      image: barichello/godot-ci:4.3
+    env:
+      # obraz ma szablony eksportu, ustawienia Android SDK i klucz debug w katalogu domowym /root
+      HOME: /root
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sprawdzenie szablonów eksportu
+        run: |
+          ls -la /root/.local/share/godot/export_templates/ || true
+          ls /root/.config/godot/ || true
+      - name: Import zasobów
+        run: godot --headless --path . --import || true
+      - name: Testy GUT
+        run: godot --headless --path . -s addons/gut/gut_cmdln.gd -gconfig=res://.gutconfig.json
+      - name: Eksport APK (debug)
+        run: |
+          mkdir -p build
+          godot --headless --path . --export-debug "Android" build/champions.apk
+          ls -la build
+          test -s build/champions.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: champions-apk
+          path: build/champions.apk

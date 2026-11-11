@@ -1,0 +1,38 @@
+{
+  "_opis": "Grafika poziomów. Każdy poziom to folder z warstwami PNG. Warstwy 'tyl' rysowane są ZA postaciami (od najdalszej), warstwy 'przod' PRZED postaciami. paralaksa: 0 = stoi w miejscu, 1 = przesuwa się razem z drogą, >1 = szybciej (pierwszy plan). Warstwa z paralaksą > 0 powtarza się w poziomie (musi się bezszwowo zapętlać). Gdy pliku nie ma, gra rysuje placeholder w kolorach z 'placeholder'. Pełny opis: docs/SPECYFIKACJA_GRAFIKI_POZIOMOW.md",
+  "poziomy": {
+    "karczma": {
+      "folder": "res://assets/levels/karczma",
+      "tyl": [ { "plik": "tlo.png", "paralaksa": 0.0 } ],
+      "przod": [ { "plik": "przod.png", "paralaksa": 0.0 } ],
+      "horyzont_y": 470,
+      "placeholder": { "typ": "wnetrze", "sciana": "#3a2418", "sciana2": "#4a2f1e", "podloga": "#5b3d24", "podloga2": "#4c321d", "akcent": "#c8922e" }
+    },
+    "hufduhof": {
+      "folder": "res://assets/levels/hufduhof",
+      "tyl": [
+        { "plik": "niebo.png", "paralaksa": 0.0 },
+        { "plik": "daleko.png", "paralaksa": 0.15 },
+        { "plik": "wies.png", "paralaksa": 0.5 },
+        { "plik": "droga.png", "paralaksa": 1.0 }
+      ],
+      "przod": [ { "plik": "przod.png", "paralaksa": 1.4 } ],
+      "horyzont_y": 300,
+      "placeholder": { "typ": "plener", "niebo": "#2b1a22", "niebo2": "#6a2e1e", "daleko": "#1c1a1e", "domy": "#3b2c26", "dach": "#5a2a1e", "ziemia": "#4a3a28", "ziemia2": "#3e3022", "akcent": "#d9641e" }
+    },
+    "piwnice": {
+      "folder": "res://assets/levels/piwnice",
+      "tyl": [ { "plik": "tlo.png", "paralaksa": 0.0 }, { "plik": "sciana.png", "paralaksa": 0.6 }, { "plik": "podloga.png", "paralaksa": 1.0 } ],
+      "przod": [ { "plik": "przod.png", "paralaksa": 1.4 } ],
+      "horyzont_y": 300,
+      "placeholder": { "typ": "wnetrze", "sciana": "#23242a", "sciana2": "#2d2f36", "podloga": "#3a3a3e", "podloga2": "#303034", "akcent": "#7fae4a" }
+    },
+    "trakt": {
+      "folder": "res://assets/levels/trakt",
+      "tyl": [ { "plik": "niebo.png", "paralaksa": 0.0 }, { "plik": "daleko.png", "paralaksa": 0.15 }, { "plik": "las.png", "paralaksa": 0.5 }, { "plik": "droga.png", "paralaksa": 1.0 } ],
+      "przod": [ { "plik": "przod.png", "paralaksa": 1.4 } ],
+      "horyzont_y": 300,
+      "placeholder": { "typ": "plener", "niebo": "#1e2630", "niebo2": "#3c4650", "daleko": "#141c1a", "domy": "#1e2c22", "dach": "#16221a", "ziemia": "#3c3a2a", "ziemia2": "#323022", "akcent": "#8a9a5a" }
+    }
+  }
+}

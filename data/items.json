@@ -1,0 +1,27 @@
+{
+  "_opis": "Ekwipunek. slot: bron, dodatek, helm, zbroja, rekawice, amulet. cechy = dodatki do cech WFRP oraz 'bron' (obrażenia ataku), 'pancerz' (stała redukcja obrażeń fizycznych), 'odp_ogluszenie' (ułamek skrócenia ogłuszenia). tylko = lista bohaterów, którzy mogą to nosić (brak = wszyscy). loot = czy może wypaść z bossa.",
+  "sloty": ["bron", "dodatek", "helm", "zbroja", "rekawice", "amulet"],
+  "nazwy_slotow": { "bron": "Broń", "dodatek": "Tarcza / dodatek", "helm": "Hełm", "zbroja": "Zbroja", "rekawice": "Rękawice", "amulet": "Amulet" },
+  "przedmioty": {
+    "miecz_dwureczny": { "nazwa": "Miecz dwuręczny Gwardii", "slot": "bron", "rzadkosc": "common", "poziom": 1, "tylko": ["ivo"], "cechy": { "bron": 1.0, "WW": 2 }, "opis": "Służbowy zweihänder Szkarłatnej Gwardii." },
+    "kaftan_gwardii": { "nazwa": "Kaftan Gwardii", "slot": "zbroja", "rzadkosc": "common", "poziom": 1, "cechy": { "pancerz": 0.5 }, "opis": "Czerwono-czarny, pikowany." },
+    "beret_gwardii": { "nazwa": "Beret z piórem", "slot": "helm", "rzadkosc": "common", "poziom": 1, "cechy": { "Ogd": 3 }, "opis": "Bardziej ozdoba niż ochrona." },
+    "beczka_piwa": { "nazwa": "Beczka piwa", "slot": "dodatek", "rzadkosc": "uncommon", "poziom": 1, "tylko": ["borubar"], "cechy": { "pancerz": 1.0, "Zyw": 2 }, "opis": "Dębowa. Zatrzymuje ciosy lepiej niż niejedna tarcza." },
+    "fartuch_karczmarza": { "nazwa": "Skórzany fartuch", "slot": "zbroja", "rzadkosc": "common", "poziom": 1, "cechy": { "pancerz": 0.5 }, "opis": "Poplamiony, ale gruby." },
+    "luk_mysliwski": { "nazwa": "Łuk myśliwski", "slot": "bron", "rzadkosc": "common", "poziom": 1, "tylko": ["modraszka"], "cechy": { "bron": 1.0, "US": 2 }, "opis": "Lekki, cisowy." },
+    "skorzany_kubrak": { "nazwa": "Skórzany kubrak", "slot": "zbroja", "rzadkosc": "common", "poziom": 1, "cechy": { "pancerz": 0.5, "Zr": 2 }, "opis": "Nie krępuje ruchów." },
+    "kostur_ognia": { "nazwa": "Kostur Płomienia", "slot": "bron", "rzadkosc": "common", "poziom": 1, "tylko": ["ursa"], "cechy": { "bron": 1.0, "Int": 2 }, "opis": "Zwieńczony tlącym się węglem." },
+    "szata_ognia": { "nazwa": "Szata Kolegium", "slot": "zbroja", "rzadkosc": "common", "poziom": 1, "cechy": { "SW": 3 }, "opis": "Czerwień i złoto Aqshy." },
+
+    "tarcza_strazy": { "nazwa": "Tarcza straży miejskiej", "slot": "dodatek", "rzadkosc": "common", "poziom": 2, "loot": true, "cechy": { "pancerz": 1.0 }, "opis": "Herb Carroburga ledwo widać spod wgnieceń." },
+    "szyszak": { "nazwa": "Szyszak", "slot": "helm", "rzadkosc": "common", "poziom": 2, "loot": true, "cechy": { "pancerz": 0.5, "odp_ogluszenie": 0.2 }, "opis": "Chroni głowę - ogłuszenia trwają krócej." },
+    "rekawice_szermierza": { "nazwa": "Rękawice szermierza", "slot": "rekawice", "rzadkosc": "uncommon", "poziom": 3, "loot": true, "cechy": { "WW": 4, "Zr": 3 }, "opis": "Pewniejszy chwyt, celniejszy cios." },
+    "rekawice_lucznika": { "nazwa": "Karwasz łucznika", "slot": "rekawice", "rzadkosc": "uncommon", "poziom": 3, "loot": true, "cechy": { "US": 5 }, "opis": "Cięciwa nie rani przedramienia." },
+    "amulet_sigmara": { "nazwa": "Młot Sigmara", "slot": "amulet", "rzadkosc": "uncommon", "poziom": 3, "loot": true, "cechy": { "SW": 6 }, "opis": "Dodaje odwagi i chroni przed magią." },
+    "talizman_plomienia": { "nazwa": "Talizman Płomienia", "slot": "amulet", "rzadkosc": "rare", "poziom": 4, "loot": true, "cechy": { "Int": 6, "SW": 3 }, "opis": "Ciepły w dotyku." },
+    "kolczuga": { "nazwa": "Kolczuga", "slot": "zbroja", "rzadkosc": "rare", "poziom": 4, "loot": true, "cechy": { "pancerz": 1.5, "Odp": 3 }, "opis": "Ciężka, ale ratuje życie." },
+    "helm_garnczkowy": { "nazwa": "Hełm garnczkowy", "slot": "helm", "rzadkosc": "rare", "poziom": 5, "loot": true, "cechy": { "pancerz": 1.0, "odp_ogluszenie": 0.4 }, "opis": "W środku słychać tylko własny oddech." },
+    "pierscien_kupca": { "nazwa": "Sygnet kupca", "slot": "amulet", "rzadkosc": "epic", "poziom": 5, "loot": true, "cechy": { "Ogd": 12 }, "opis": "Otwiera drzwi i sakiewki." },
+    "runiczny_talizman": { "nazwa": "Runiczny talizman", "slot": "amulet", "rzadkosc": "legendary", "poziom": 8, "loot": true, "cechy": { "SW": 10, "Odp": 5, "Zyw": 3 }, "opis": "Krasnoludzka robota. Runy żarzą się w obecności Chaosu." }
+  }
+}

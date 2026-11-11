@@ -1,0 +1,125 @@
+{
+  "_opis": "Bohaterowie. profil = cechy WFRP na poziomie 1; wzrost = przyrost cechy na każdy kolejny poziom. atak: typ wrecz/dystans/magia, bron = bazowe obrażenia (dla magii: moc), czas = sekundy między atakami, zasieg (tylko wręcz) w px, cel = najblizszy/losowy/najmniej_hp/najwiecej_hp. umiejetnosci odblokowują się na poziomie 'prog'. Typy: atak_mnoznik, co_n_atak, stat, aura, leczenie, status_przy_trafieniu, prowokacja, modyfikacja, ultimate. Zasięgi aur: sasiednie, zasieg_2, kolumna, za_mna, przed_mna, rzad_przedni, rzad_tylny, druzyna, ja. Efekty aur: obrazenia, szybkosc, redukcja, zloto (ułamki) i regeneracja (HP/s). specjalizacja.galezie[].modyfikacje zmieniają pola umiejętności, ataku lub cechy.",
+  "kolejnosc": ["ivo", "borubar", "modraszka", "ursa"],
+  "bohaterowie": {
+    "ivo": {
+      "imie": "Ivo Eggert",
+      "profesja": "Szkarłatna Gwardia z Carroburga",
+      "role": ["DPS"],
+      "opis": "Weteran z dwuręcznym mieczem. Szerokie cięcia trafiają kilku wrogów naraz. Musi stać w pierwszej linii - z tyłu nie dosięgnie wroga.",
+      "grafika": "res://assets/characters/ivo",
+      "portret": "res://assets/characters/ivo/portrait.png",
+      "placeholder": { "kolor": "#b0282a", "w": 46, "h": 118 },
+      "odblokowanie": { "typ": "start" },
+      "profil": { "WW": 41, "US": 30, "K": 38, "Odp": 36, "Zr": 31, "Int": 28, "SW": 32, "Ogd": 29, "Zyw": 12, "Sz": 4 },
+      "wzrost": { "WW": 1.5, "K": 1.5, "Odp": 1.0, "Zr": 0.5, "SW": 0.5, "Zyw": 0.7 },
+      "atak": { "nazwa": "Cios mieczem", "typ": "wrecz", "bron": 5.0, "czas": 5.0, "zasieg": 215, "cel": "najblizszy", "dzwiek": "swing_heavy" },
+      "ekwipunek": { "bron": "miecz_dwureczny", "zbroja": "kaftan_gwardii", "helm": "beret_gwardii" },
+      "umiejetnosci": [
+        { "id": "silniejsze_uderzenie", "prog": 3, "typ": "atak_mnoznik", "nazwa": "Silniejsze uderzenie", "mnoznik": 1.35, "opis": "Zwykły cios zadaje o 35% więcej obrażeń." },
+        { "id": "super_cios", "prog": 5, "typ": "co_n_atak", "nazwa": "Super Cios", "n": 3, "mnoznik": 2.2, "promien": 95, "odrzut": 0, "ogluszenie": 0.0, "opis": "Co trzeci cios to szeroki zamach: większe obrażenia wszystkim wrogom wokół celu." },
+        { "id": "okrzyk_gwardii", "prog": 6, "typ": "ultimate", "nazwa": "Okrzyk Szkarłatnej Gwardii", "odnowienie": 60.0, "efekt": "ogluszenie_wszystkich", "czas": 3.0, "wzmocnienie": 0.3, "wzmocnienie_czas": 8.0, "opis": "Ogłusza wszystkich wrogów na 3 s, a drużyna przez 8 s zadaje o 30% więcej obrażeń." },
+        { "id": "super_cios_odrzut", "prog": 8, "typ": "modyfikacja", "nazwa": "Zamach z odrzutem", "modyfikacje": [ { "umiejetnosc": "super_cios", "pole": "odrzut", "ustaw": 130 } ], "opis": "Super Cios odpycha trafionych wrogów." },
+        { "id": "przyklad_gwardii", "prog": 12, "typ": "aura", "nazwa": "Przykład Gwardii", "zasieg": "sasiednie", "efekty": { "obrazenia": 0.12 }, "opis": "Bohaterowie na sąsiednich polach zadają o 12% więcej obrażeń." }
+      ],
+      "specjalizacja": {
+        "prog": 10,
+        "galezie": [
+          { "id": "potezne_uderzenie", "nazwa": "Mistrz Potężnego Uderzenia", "opis": "Mocniejszy zwykły cios, potężniejszy Super Cios i silniejszy odrzut.",
+            "modyfikacje": [ { "atak": "bron", "razy": 1.35 }, { "umiejetnosc": "super_cios", "pole": "mnoznik", "razy": 1.45 }, { "umiejetnosc": "super_cios", "pole": "odrzut", "razy": 1.6 } ] },
+          { "id": "szybkosc", "nazwa": "Mistrz Szybkości", "opis": "Krótszy czas między ciosami, a Super Cios pada co drugi atak.",
+            "modyfikacje": [ { "atak": "czas", "razy": 0.72 }, { "umiejetnosc": "super_cios", "pole": "n", "ustaw": 2 } ] }
+        ]
+      }
+    },
+    "borubar": {
+      "imie": "Borubar",
+      "profesja": "Karczmarz z Hufduhofu",
+      "role": ["Tank", "Gold Support", "Healer"],
+      "opis": "Twardy jak dębowa beczka, którą nosi na plecach. Ma mnóstwo żywotności, ale bije rzadko i słabo. Stawiaj go z przodu - zasłania tych, którzy stoją za nim.",
+      "grafika": "res://assets/characters/borubar",
+      "portret": "res://assets/characters/borubar/portrait.png",
+      "placeholder": { "kolor": "#8a6a32", "w": 60, "h": 104 },
+      "odblokowanie": { "typ": "prolog" },
+      "profil": { "WW": 30, "US": 20, "K": 35, "Odp": 50, "Zr": 20, "Int": 28, "SW": 40, "Ogd": 42, "Zyw": 22, "Sz": 3 },
+      "wzrost": { "WW": 0.8, "K": 0.6, "Odp": 1.5, "SW": 0.8, "Ogd": 0.5, "Zyw": 1.4 },
+      "atak": { "nazwa": "Cios beczką", "typ": "wrecz", "bron": 2.0, "czas": 6.0, "zasieg": 215, "cel": "najblizszy", "dzwiek": "hit" },
+      "ekwipunek": { "dodatek": "beczka_piwa", "zbroja": "fartuch_karczmarza" },
+      "umiejetnosci": [
+        { "id": "prowokacja", "prog": 1, "typ": "prowokacja", "nazwa": "Hej, tutaj!", "zasieg_torow": 2, "opis": "Wrogowie walczący wręcz w pobliskich torach rzucają się najpierw na Borubara." },
+        { "id": "zaslona_z_beczki", "prog": 3, "typ": "aura", "nazwa": "Zasłona z beczki", "zasieg": "sasiednie", "efekty": { "redukcja": 0.15 }, "opis": "Bohaterowie na sąsiednich polach otrzymują o 15% mniej obrażeń." },
+        { "id": "beczka_w_leb", "prog": 5, "typ": "co_n_atak", "nazwa": "Beczką w łeb", "n": 3, "mnoznik": 1.5, "promien": 0, "odrzut": 0, "ogluszenie": 2.0, "opis": "Co trzeci cios ogłusza cel na 2 s." },
+        { "id": "kolejka_dla_wszystkich", "prog": 6, "typ": "ultimate", "nazwa": "Kolejka dla wszystkich", "odnowienie": 75.0, "efekt": "leczenie_druzyny", "moc": 0.35, "opis": "Polewa piwo: cała drużyna odzyskuje 35% żywotności." },
+        { "id": "karczemny_targ", "prog": 8, "typ": "aura", "nazwa": "Karczemny targ", "zasieg": "druzyna", "efekty": { "zloto": 0.15 }, "opis": "Drużyna zdobywa o 15% więcej złotych koron." },
+        { "id": "lyk_piwa", "prog": 12, "typ": "leczenie", "nazwa": "Łyk piwa", "co_s": 8.0, "moc": 6.0, "cel": "najslabszy", "opis": "Co 8 s podaje kufel najbardziej rannemu bohaterowi." }
+      ],
+      "specjalizacja": {
+        "prog": 10,
+        "galezie": [
+          { "id": "mur", "nazwa": "Żywy Mur", "opis": "Jeszcze więcej żywotności i mocniejsza Zasłona z beczki.",
+            "modyfikacje": [ { "cecha": "Zyw", "dodaj": 8 }, { "umiejetnosc": "zaslona_z_beczki", "pole": "efekty.redukcja", "razy": 1.6 } ] },
+          { "id": "szynkarz", "nazwa": "Szynkarz", "opis": "Podwójny zysk z Karczemnego targu i częstsza Kolejka dla wszystkich.",
+            "modyfikacje": [ { "umiejetnosc": "karczemny_targ", "pole": "efekty.zloto", "razy": 2.0 }, { "umiejetnosc": "kolejka_dla_wszystkich", "pole": "odnowienie", "razy": 0.7 } ] }
+        ]
+      }
+    },
+    "modraszka": {
+      "imie": "Modraszka",
+      "profesja": "Łuczniczka",
+      "role": ["DPS", "Speed Support", "Debuffer"],
+      "opis": "Zwinna łuczniczka. Strzela z tylnego rzędu w dowolnego wroga na polu, spowalnia trafionych i popędza sąsiadów do szybszych ataków.",
+      "grafika": "res://assets/characters/modraszka",
+      "portret": "res://assets/characters/modraszka/portrait.png",
+      "placeholder": { "kolor": "#c9532b", "w": 40, "h": 104 },
+      "odblokowanie": { "typ": "sklep", "koszt": 120 },
+      "profil": { "WW": 31, "US": 46, "K": 29, "Odp": 30, "Zr": 43, "Int": 30, "SW": 31, "Ogd": 36, "Zyw": 9, "Sz": 5 },
+      "wzrost": { "US": 1.6, "K": 0.8, "Zr": 1.0, "Odp": 0.5, "Zyw": 0.45 },
+      "atak": { "nazwa": "Strzała", "typ": "dystans", "bron": 5.0, "czas": 4.0, "zasieg": 0, "cel": "najblizszy", "pocisk": "res://assets/fx/arrow.png", "dzwiek": "swing" },
+      "ekwipunek": { "bron": "luk_mysliwski", "zbroja": "skorzany_kubrak" },
+      "umiejetnosci": [
+        { "id": "strzala_w_noge", "prog": 3, "typ": "status_przy_trafieniu", "nazwa": "Strzała w nogę", "status": "spowolnienie", "wartosc": 0.35, "czas": 3.0, "szansa": 1.0, "opis": "Trafiony wróg porusza się i atakuje o 35% wolniej przez 3 s." },
+        { "id": "grad_strzal", "prog": 5, "typ": "co_n_atak", "nazwa": "Grad strzał", "n": 4, "mnoznik": 1.3, "promien": 130, "odrzut": 0, "ogluszenie": 0.0, "opis": "Co czwarty strzał zasypuje strzałami wszystkich wrogów wokół celu." },
+        { "id": "strzala_z_siecia", "prog": 6, "typ": "ultimate", "nazwa": "Strzała z siecią", "odnowienie": 50.0, "efekt": "status_wszystkich", "status": "spowolnienie", "wartosc": 0.6, "czas": 8.0, "opis": "Sieć oplątuje wszystkich wrogów: przez 8 s są o 60% wolniejsi." },
+        { "id": "zwinne_palce", "prog": 8, "typ": "aura", "nazwa": "Zwinne palce", "zasieg": "sasiednie", "efekty": { "szybkosc": 0.15 }, "opis": "Bohaterowie na sąsiednich polach atakują o 15% szybciej." }
+      ],
+      "specjalizacja": {
+        "prog": 10,
+        "galezie": [
+          { "id": "lowczyni", "nazwa": "Łowczyni", "opis": "Celuje w najsilniejszego wroga i zadaje mu znacznie większe obrażenia.",
+            "modyfikacje": [ { "atak": "cel", "ustaw": "najwiecej_hp" }, { "atak": "bron", "razy": 1.5 } ] },
+          { "id": "sieciarka", "nazwa": "Sieciarka", "opis": "Silniejsze spowolnienie i mocniejsze Zwinne palce.",
+            "modyfikacje": [ { "umiejetnosc": "strzala_w_noge", "pole": "wartosc", "ustaw": 0.5 }, { "umiejetnosc": "zwinne_palce", "pole": "efekty.szybkosc", "razy": 1.7 } ] }
+        ]
+      }
+    },
+    "ursa": {
+      "imie": "Ursa",
+      "profesja": "Czarodziejka Kolegium Płomienia",
+      "role": ["DPS", "Debuffer", "Support"],
+      "opis": "Magia ognia omija pancerz - to odpowiedź na opancerzonych wrogów i bossów. Podpala trafionych i wzmacnia bohatera stojącego przed nią. Krucha: trzymaj ją z tyłu.",
+      "grafika": "res://assets/characters/ursa",
+      "portret": "res://assets/characters/ursa/portrait.png",
+      "placeholder": { "kolor": "#d98a1f", "w": 40, "h": 108 },
+      "odblokowanie": { "typ": "sklep", "koszt": 300 },
+      "profil": { "WW": 28, "US": 34, "K": 28, "Odp": 30, "Zr": 33, "Int": 47, "SW": 42, "Ogd": 30, "Zyw": 8, "Sz": 4 },
+      "wzrost": { "Int": 1.8, "SW": 1.0, "Odp": 0.5, "Zyw": 0.4 },
+      "atak": { "nazwa": "Ognisty pocisk", "typ": "magia", "bron": 4.0, "czas": 5.0, "zasieg": 0, "cel": "losowy", "pocisk": "res://assets/fx/fireball.png", "dzwiek": "fire" },
+      "ekwipunek": { "bron": "kostur_ognia", "zbroja": "szata_ognia" },
+      "umiejetnosci": [
+        { "id": "podpalenie", "prog": 3, "typ": "status_przy_trafieniu", "nazwa": "Podpalenie", "status": "podpalenie", "wartosc": 1.5, "czas": 4.0, "szansa": 1.0, "opis": "Trafiony wróg płonie: 1,5 obrażeń na sekundę przez 4 s." },
+        { "id": "kula_ognia", "prog": 5, "typ": "co_n_atak", "nazwa": "Kula ognia", "n": 3, "mnoznik": 1.7, "promien": 115, "odrzut": 0, "ogluszenie": 0.0, "opis": "Co trzeci czar wybucha, raniąc wszystkich wrogów wokół celu." },
+        { "id": "sciana_ognia", "prog": 6, "typ": "ultimate", "nazwa": "Ściana ognia", "odnowienie": 70.0, "efekt": "obrazenia_wszystkich", "moc": 22.0, "opis": "Fala płomieni rani wszystkich wrogów na polu (magia, omija pancerz)." },
+        { "id": "plonacy_orez", "prog": 8, "typ": "aura", "nazwa": "Płonący oręż", "zasieg": "przed_mna", "efekty": { "obrazenia": 0.3 }, "opis": "Bohater stojący bezpośrednio przed Ursą zadaje o 30% więcej obrażeń." }
+      ],
+      "specjalizacja": {
+        "prog": 10,
+        "galezie": [
+          { "id": "piromantka", "nazwa": "Piromantka", "opis": "Podwójne podpalenie i większy wybuch Kuli ognia.",
+            "modyfikacje": [ { "umiejetnosc": "podpalenie", "pole": "wartosc", "razy": 2.0 }, { "umiejetnosc": "kula_ognia", "pole": "promien", "razy": 1.4 } ] },
+          { "id": "mistrzyni_plomienia", "nazwa": "Mistrzyni Płomienia", "opis": "Płonący oręż obejmuje wszystkie sąsiednie pola i jest silniejszy.",
+            "modyfikacje": [ { "umiejetnosc": "plonacy_orez", "pole": "zasieg", "ustaw": "sasiednie" }, { "umiejetnosc": "plonacy_orez", "pole": "efekty.obrazenia", "razy": 1.3 } ] }
+        ]
+      }
+    }
+  }
+}

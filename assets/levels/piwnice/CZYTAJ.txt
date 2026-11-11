@@ -1,0 +1,2 @@
+Tu wrzuć warstwy poziomu "piwnice" zgodnie z docs/SPECYFIKACJA_GRAFIKI_POZIOMOW.md.
+Dopóki pliku nie ma, gra rysuje placeholder.

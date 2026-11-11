@@ -1,0 +1,66 @@
+{
+  "_opis": "Wrogowie. zachowanie: wrecz (idzie na pierwszą linię), dystans (staje na 'dystans_x' i strzela w losowego bohatera), magia (staje na 'dystans_x', celuje w tylny rząd), skok (przeskakuje pierwszą linię i gryzie tylny rząd). predkosc w px/s. umiejetnosci jak u bohaterów (co_n_atak, status_przy_trafieniu). grafika = folder ze sprite'ami (anim/west/N.png); gdy brak - rysowany jest placeholder (kolor, w, h).",
+  "wrogowie": {
+    "szczur": {
+      "nazwa": "Szczur", "zachowanie": "wrecz", "predkosc": 70, "zloto": 2,
+      "grafika": "res://assets/enemies/skaven_spear", "placeholder": { "kolor": "#6b5a48", "w": 34, "h": 62 },
+      "profil": { "WW": 25, "US": 20, "K": 22, "Odp": 20, "Zr": 35, "Int": 15, "SW": 15, "Zyw": 1.0, "Sz": 5 },
+      "atak": { "nazwa": "Ugryzienie", "typ": "wrecz", "bron": 1.5, "czas": 3.0, "dzwiek": "hit" }
+    },
+    "szczur_strzelec": {
+      "nazwa": "Szczur Strzelec", "zachowanie": "dystans", "dystans_x": 930, "predkosc": 60, "zloto": 3,
+      "grafika": "res://assets/enemies/skaven_slinger", "placeholder": { "kolor": "#7a6a3a", "w": 34, "h": 62 },
+      "profil": { "WW": 20, "US": 36, "K": 20, "Odp": 18, "Zr": 38, "Int": 18, "SW": 15, "Zyw": 0.8, "Sz": 4 },
+      "atak": { "nazwa": "Proca", "typ": "dystans", "bron": 4.0, "czas": 4.0, "cel": "losowy", "pocisk": "res://assets/fx/stone.png", "dzwiek": "stone" }
+    },
+    "szczur_mag": {
+      "nazwa": "Szczur Mag", "zachowanie": "magia", "dystans_x": 990, "predkosc": 50, "zloto": 5,
+      "grafika": "res://assets/enemies/skaven_warlock", "placeholder": { "kolor": "#3f7a4a", "w": 36, "h": 66 },
+      "profil": { "WW": 18, "US": 25, "K": 18, "Odp": 18, "Zr": 30, "Int": 40, "SW": 35, "Zyw": 0.9, "Sz": 4 },
+      "atak": { "nazwa": "Spaczeniowy pocisk", "typ": "magia", "bron": 3.0, "czas": 5.0, "cel": "tyl", "pocisk": "res://assets/fx/magic_bolt.png", "dzwiek": "bolt" },
+      "umiejetnosci": [
+        { "id": "klatwa", "prog": 1, "typ": "status_przy_trafieniu", "nazwa": "Klątwa", "status": "oslabienie", "wartosc": 0.25, "czas": 4.0, "szansa": 1.0 }
+      ]
+    },
+    "pies_chaosu": {
+      "nazwa": "Pies Chaosu", "zachowanie": "skok", "predkosc": 170, "zloto": 6,
+      "grafika": "res://assets/enemies/pies_chaosu", "placeholder": { "kolor": "#7a2630", "w": 72, "h": 46 },
+      "profil": { "WW": 42, "US": 0, "K": 40, "Odp": 30, "Zr": 45, "Int": 10, "SW": 25, "Zyw": 2.5, "Sz": 7 },
+      "atak": { "nazwa": "Kły", "typ": "wrecz", "bron": 4.5, "czas": 2.6, "dzwiek": "hit" }
+    },
+    "zwierzoczlek": {
+      "nazwa": "Zwierzoczłek", "zachowanie": "wrecz", "predkosc": 55, "zloto": 12,
+      "grafika": "res://assets/enemies/zwierzoczlek", "placeholder": { "kolor": "#5a4030", "w": 58, "h": 124 },
+      "profil": { "WW": 42, "US": 15, "K": 46, "Odp": 45, "Zr": 28, "Int": 18, "SW": 30, "Zyw": 6.0, "Sz": 4 },
+      "atak": { "nazwa": "Topór", "typ": "wrecz", "bron": 6.5, "czas": 4.0, "dzwiek": "swing_heavy" }
+    },
+    "szczurzy_herszt": {
+      "nazwa": "Szczurzy Herszt", "boss": true, "zachowanie": "wrecz", "predkosc": 60, "zloto": 40, "pancerz": 1.0,
+      "grafika": "res://assets/enemies/szczurzy_herszt", "placeholder": { "kolor": "#4a4038", "w": 70, "h": 110 },
+      "profil": { "WW": 40, "US": 20, "K": 38, "Odp": 38, "Zr": 35, "Int": 25, "SW": 35, "Zyw": 14.0, "Sz": 4 },
+      "atak": { "nazwa": "Halabarda", "typ": "wrecz", "bron": 5.0, "czas": 3.6, "dzwiek": "swing_heavy" },
+      "umiejetnosci": [
+        { "id": "zamach_herszta", "prog": 1, "typ": "co_n_atak", "nazwa": "Zamach", "n": 3, "mnoznik": 1.3, "promien": 110, "odrzut": 0, "ogluszenie": 0.0 }
+      ]
+    },
+    "wodz_zwierzoludzi": {
+      "nazwa": "Wódz Zwierzoludzi", "boss": true, "zachowanie": "wrecz", "predkosc": 55, "zloto": 70, "pancerz": 1.5,
+      "grafika": "res://assets/enemies/wodz_zwierzoludzi", "placeholder": { "kolor": "#4a2a1c", "w": 84, "h": 150 },
+      "profil": { "WW": 50, "US": 20, "K": 52, "Odp": 50, "Zr": 30, "Int": 22, "SW": 40, "Zyw": 26.0, "Sz": 4 },
+      "atak": { "nazwa": "Wielki topór", "typ": "wrecz", "bron": 7.5, "czas": 3.8, "dzwiek": "swing_heavy" },
+      "umiejetnosci": [
+        { "id": "ryk", "prog": 1, "typ": "co_n_atak", "nazwa": "Ryk i zamach", "n": 4, "mnoznik": 1.2, "promien": 150, "odrzut": 0, "ogluszenie": 1.2 }
+      ]
+    },
+    "czempion_chaosu": {
+      "nazwa": "Champion Chaosu", "boss": true, "zachowanie": "wrecz", "predkosc": 50, "zloto": 150, "pancerz": 3.0,
+      "grafika": "res://assets/enemies/czempion_chaosu", "placeholder": { "kolor": "#2a2230", "w": 92, "h": 170 },
+      "profil": { "WW": 60, "US": 25, "K": 55, "Odp": 55, "Zr": 30, "Int": 30, "SW": 60, "Zyw": 40.0, "Sz": 4 },
+      "atak": { "nazwa": "Runiczny miecz", "typ": "wrecz", "bron": 9.0, "czas": 3.5, "dzwiek": "swing_heavy" },
+      "umiejetnosci": [
+        { "id": "piesc_chaosu", "prog": 1, "typ": "co_n_atak", "nazwa": "Pięść Chaosu", "n": 3, "mnoznik": 1.3, "promien": 130, "odrzut": 0, "ogluszenie": 1.5 },
+        { "id": "mroczna_aura", "prog": 1, "typ": "status_przy_trafieniu", "nazwa": "Mroczna aura", "status": "oslabienie", "wartosc": 0.2, "czas": 5.0, "szansa": 0.5 }
+      ]
+    }
+  }
+}

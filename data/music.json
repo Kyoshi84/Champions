@@ -1,0 +1,12 @@
+{
+  "_opis": "Muzyka z poprzednich projektów (Hufduhof, melodia 'Oath of the Carroburg Guard'). file = ścieżka do pliku (ogg/wav/mp3) - można podmienić własnym pod tą samą nazwą. volume_db: 0 = bez zmian, -6 = ok. połowa głośności.",
+  "fade_in": 0.8,
+  "tracks": {
+    "menu":    { "file": "res://assets/audio/music/menu_theme.ogg",  "volume_db": 0.0 },
+    "karczma": { "file": "res://assets/audio/music/menu_theme.ogg",  "volume_db": -6.0 },
+    "koszary": { "file": "res://assets/audio/music/menu_theme.ogg",  "volume_db": -9.0 },
+    "wioska":  { "file": "res://assets/audio/music/stage_theme.ogg", "volume_db": -5.0 },
+    "walka":   { "file": "res://assets/audio/music/stage_theme.ogg", "volume_db": -5.0 },
+    "boss":    { "file": "res://assets/audio/music/boss_theme.ogg",  "volume_db": -4.0 }
+  }
+}

@@ -1,0 +1,1 @@
+Tu wrzuć tlo.png, przod.png (opcjonalnie) oraz props/lada.png zgodnie z docs/SPECYFIKACJA_GRAFIKI_POZIOMOW.md.
