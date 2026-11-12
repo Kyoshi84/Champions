@@ -20,6 +20,9 @@ var scroll_x: float = 0.0
 var tyl: Warstwy
 var przod: Warstwy
 var ma_grafike: bool = false
+var _swiatla: Array = []      # [{spr: Sprite2D, baza: float, mig: float, faza: float, szybk: float}]
+var _czas: float = 0.0
+static var _tex_blask: GradientTexture2D
 
 func setup(id: String) -> void:
 	level_id = id
@@ -38,6 +41,55 @@ func setup(id: String) -> void:
 	for l in tyl.lista:
 		if _tex(l) != null:
 			ma_grafike = true
+	if ma_grafike:
+		for sw in cfg.get("swiatla", []):
+			_dodaj_swiatlo(sw)
+
+## Migoczące światło (np. kominek). Dane w levels_art.json -> "swiatla":
+## x, y (środek), promien, kolor, sila (blask na tle), na_postaciach (słabszy blask NAD postaciami), migotanie, szybkosc.
+## Blask rysowany jest addytywnie: raz tuż nad tłem (za postaciami), raz nad postaciami (żeby je też rozjaśniał).
+func _dodaj_swiatlo(sw: Dictionary) -> void:
+	if _tex_blask == null:
+		var g := Gradient.new()
+		g.offsets = PackedFloat32Array([0.0, 0.25, 0.6, 1.0])
+		g.colors = PackedColorArray([Color(1, 1, 1, 1), Color(1, 1, 1, 0.55), Color(1, 1, 1, 0.14), Color(1, 1, 1, 0.0)])
+		_tex_blask = GradientTexture2D.new()
+		_tex_blask.gradient = g
+		_tex_blask.fill = GradientTexture2D.FILL_RADIAL
+		_tex_blask.fill_from = Vector2(0.5, 0.5)
+		_tex_blask.fill_to = Vector2(1.0, 0.5)
+		_tex_blask.width = 256
+		_tex_blask.height = 256
+	var kol := Art.col(str(sw.get("kolor", "#ff8a2a")))
+	var r := float(sw.get("promien", 300.0))
+	var mat := CanvasItemMaterial.new()
+	mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	var faza := randf() * TAU
+	for wariant in [[-95, float(sw.get("sila", 0.5)), 1.0], [95, float(sw.get("na_postaciach", 0.0)), 0.8]]:
+		var sila: float = wariant[1]
+		if sila <= 0.0:
+			continue
+		var spr := Sprite2D.new()
+		spr.texture = _tex_blask
+		spr.material = mat
+		spr.position = Vector2(float(sw.get("x", 0)), float(sw.get("y", 0)))
+		spr.scale = Vector2.ONE * (r * 2.0 * float(wariant[2]) / 256.0)
+		spr.z_index = int(wariant[0])
+		spr.modulate = Color(kol.r, kol.g, kol.b, sila)
+		add_child(spr)
+		_swiatla.append({"spr": spr, "baza": sila, "kol": kol, "mig": float(sw.get("migotanie", 0.1)), "faza": faza, "szybk": float(sw.get("szybkosc", 1.0))})
+
+func _process(delta: float) -> void:
+	if _swiatla.is_empty():
+		return
+	_czas += delta
+	for s in _swiatla:
+		var t: float = _czas * float(s["szybk"]) + float(s["faza"])
+		# kilka nakładających się sinusów = nieregularny płomień
+		var f: float = 0.5 * sin(t * 7.1) + 0.3 * sin(t * 12.9 + 1.3) + 0.2 * sin(t * 23.3 + 4.1)
+		var k: float = 1.0 + float(s["mig"]) * f
+		var c: Color = s["kol"]
+		(s["spr"] as Sprite2D).modulate = Color(c.r, c.g, c.b, float(s["baza"]) * k)
 
 func przesun(dx: float) -> void:
 	scroll_x += dx

@@ -6,6 +6,10 @@
       "tyl": [ { "plik": "tlo.png", "paralaksa": 0.0 } ],
       "przod": [ { "plik": "przod.png", "paralaksa": 0.0 } ],
       "horyzont_y": 470,
+      "swiatla": [
+        { "x": 95, "y": 455, "promien": 360, "kolor": "#ff7a1e", "sila": 0.5, "na_postaciach": 0.16, "migotanie": 0.14, "szybkosc": 1.0 },
+        { "x": 95, "y": 458, "promien": 120, "kolor": "#ffb04a", "sila": 0.35, "migotanie": 0.2, "szybkosc": 1.4 }
+      ],
       "placeholder": { "typ": "wnetrze", "sciana": "#3a2418", "sciana2": "#4a2f1e", "podloga": "#5b3d24", "podloga2": "#4c321d", "akcent": "#c8922e" }
     },
     "hufduhof": {
