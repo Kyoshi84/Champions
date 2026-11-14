@@ -4,6 +4,7 @@ extends Node
 signal changed
 
 var state: Dictionary = {}
+var czas_testowy: float = -1.0     # testy podmieniają zegar
 
 func _ready() -> void:
 	new_game(false)
@@ -19,7 +20,8 @@ func new_game(zapisz: bool = true) -> void:
 		"formacja": [],           # 10 pól: id bohatera albo ""
 		"magazyn": [],            # id przedmiotów bez właściciela
 		"postep": {},             # id przygody -> {trudność: true}
-		"ranking": []
+		"ranking": [],
+		"osiagniecia": {}         # id -> true (nagroda odebrana)
 	}
 	for i in Formation.POLA:
 		state["formacja"].append("")
@@ -134,6 +136,32 @@ func przelacz_przedmiot(hero_id: String, slot: String) -> void:
 		ekw[slot] = nowy
 	save()
 
+## Zakłada wskazany przedmiot z magazynu (poprzedni z tego slotu wraca do magazynu).
+func zaloz(hero_id: String, item_id: String) -> bool:
+	var slot := str(Data.item(item_id).get("slot", ""))
+	if not ma(hero_id) or not state["magazyn"].has(item_id) or not pasuje(item_id, hero_id, slot):
+		return false
+	var ekw: Dictionary = state["bohaterowie"][hero_id]["ekwipunek"]
+	var obecny := str(ekw.get(slot, ""))
+	state["magazyn"].erase(item_id)
+	if obecny != "":
+		state["magazyn"].append(obecny)
+	ekw[slot] = item_id
+	save()
+	return true
+
+func zdejmij_przedmiot(hero_id: String, slot: String) -> bool:
+	if not ma(hero_id):
+		return false
+	var ekw: Dictionary = state["bohaterowie"][hero_id]["ekwipunek"]
+	var obecny := str(ekw.get(slot, ""))
+	if obecny == "":
+		return false
+	state["magazyn"].append(obecny)
+	ekw.erase(slot)
+	save()
+	return true
+
 func losuj_przedmiot(rng: RandomNumberGenerator) -> String:
 	var wagi: Dictionary = Data.balance.get("ekonomia", {}).get("wagi_rzadkosci", {})
 	var pula: Array = []
@@ -218,9 +246,189 @@ func druzyna(adv: Dictionary) -> Array:
 		return out
 	for pole in Formation.POLA:
 		var id := str(state["formacja"][pole])
-		if id != "" and ma(id):
-			out.append(Progression.bohater(id, poziom(id), spec(id), ekwipunek(id), pole))
+		if id != "" and ma(id) and not polegly(id):
+			var u := Progression.bohater(id, poziom(id), spec(id), ekwipunek(id), pole)
+			u.hp = maxf(1.0, u.max_hp * hp_proc(id))
+			out.append(u)
 	return out
+
+## Ilu bohaterów z formacji może teraz wyruszyć (polegli zostają w lazarecie).
+func gotowi() -> int:
+	var n := 0
+	for id in w_formacji():
+		if ma(id) and not polegly(id):
+			n += 1
+	return n
+
+# ---------------------------------------------------------------- zdrowie i lazaret
+func teraz() -> float:
+	return czas_testowy if czas_testowy >= 0.0 else Time.get_unix_time_from_system()
+
+## Nalicza regenerację od ostatniego odczytu (działa też po przerwie w grze).
+func _odswiez_zdrowie(id: String) -> void:
+	if not ma(id):
+		return
+	var b: Dictionary = state["bohaterowie"][id]
+	var t := teraz()
+	var hp := float(b.get("hp", 1.0))
+	var od := float(b.get("hp_czas", t))
+	if bool(b.get("polegly", false)):
+		if t < float(b.get("polegly_do", 0.0)):
+			b["hp"] = 0.0
+			return
+		b["polegly"] = false
+		hp = float(Data.lazaret().get("hp_po_powrocie", 0.3))
+		od = float(b.get("polegly_do", t))
+	if hp < 1.0:
+		hp = minf(1.0, hp + maxf(0.0, t - od) / 60.0 * float(Data.lazaret().get("regeneracja_na_min", 0.1)))
+	b["hp"] = hp
+	b["hp_czas"] = t
+
+func hp_proc(id: String) -> float:
+	_odswiez_zdrowie(id)
+	return float(state["bohaterowie"].get(id, {}).get("hp", 1.0))
+
+func polegly(id: String) -> bool:
+	_odswiez_zdrowie(id)
+	return bool(state["bohaterowie"].get(id, {}).get("polegly", false))
+
+func ranny(id: String) -> bool:
+	return not polegly(id) and hp_proc(id) < 0.995
+
+func hp_max(id: String) -> int:
+	return roundi(Wfrp.max_hp(zestaw(id)["cechy"]))
+
+func hp_akt(id: String) -> int:
+	if polegly(id):
+		return 0
+	return maxi(1, roundi(float(hp_max(id)) * hp_proc(id)))
+
+## Sekundy do pełnego zdrowia (ranny) albo do powrotu z lazaretu (poległy).
+func czas_do_zdrowia(id: String) -> float:
+	if polegly(id):
+		return maxf(0.0, float(state["bohaterowie"][id].get("polegly_do", 0.0)) - teraz())
+	var reg := float(Data.lazaret().get("regeneracja_na_min", 0.1))
+	return (1.0 - hp_proc(id)) / maxf(reg, 0.0001) * 60.0
+
+func koszt_leczenia(id: String) -> int:
+	if polegly(id):
+		return poziom(id) * int(Data.lazaret().get("koszt_postawienia_za_poziom", 10))
+	if not ranny(id):
+		return 0
+	return maxi(1, ceili((1.0 - hp_proc(id)) * float(poziom(id)) * float(Data.lazaret().get("koszt_leczenia_za_poziom", 4))))
+
+func moze_uleczyc(id: String) -> bool:
+	return ma(id) and (polegly(id) or ranny(id)) and int(state["korony"]) >= koszt_leczenia(id)
+
+## Natychmiastowe leczenie za korony (rannego do pełna, poległego stawia na nogi).
+func ulecz(id: String) -> bool:
+	if not moze_uleczyc(id):
+		return false
+	state["korony"] = int(state["korony"]) - koszt_leczenia(id)
+	var b: Dictionary = state["bohaterowie"][id]
+	b["polegly"] = false
+	b["hp"] = 1.0
+	b["hp_czas"] = teraz()
+	save()
+	return true
+
+## Zapisuje stan drużyny po wyjściu z misji: HP zostaje, kto padł - trafia do lazaretu.
+func zapisz_zdrowie(units: Array) -> void:
+	var t := teraz()
+	for u in units:
+		if not ma(u.id):
+			continue
+		var b: Dictionary = state["bohaterowie"][u.id]
+		if not u.alive or u.hp <= 0.0:
+			b["polegly"] = true
+			b["polegly_do"] = t + float(Data.lazaret().get("czas_poleglego_s", 180))
+			b["hp"] = 0.0
+		else:
+			b["polegly"] = false
+			b["hp"] = clampf(u.hp / maxf(u.max_hp, 1.0), 0.01, 1.0)
+		b["hp_czas"] = t
+	save()
+
+# ---------------------------------------------------------------- osiągnięcia
+## Zwraca [postęp, cel] osiągnięcia.
+func osiagniecie_postep(o: Dictionary) -> Array:
+	var w: Dictionary = o.get("warunek", {})
+	var cel := int(w.get("cel", 1))
+	var akt := 0
+	match str(w.get("typ", "")):
+		"prolog":
+			akt = 1 if bool(state.get("prolog_ukonczony", false)) else 0
+		"przygody":
+			for id in state["postep"]:
+				if not state["postep"][id].is_empty():
+					akt += 1
+		"trudnosc":
+			for id in state["postep"]:
+				if bool(state["postep"][id].get(str(w.get("trudnosc", "")), false)):
+					akt += 1
+		"bohaterowie":
+			akt = state["bohaterowie"].size()
+		"poziom":
+			for id in state["bohaterowie"]:
+				akt = maxi(akt, poziom(id))
+		"specjalizacje":
+			for id in state["bohaterowie"]:
+				if spec(id) != "":
+					akt += 1
+		"miejsca":
+			akt = miejsca()
+		"favor":
+			akt = roundi(float(state.get("favor", 0.0)) * 100.0)
+		"rzadkosc":
+			var kol: Array = Data.achievements.get("kolejnosc_rzadkosci", [])
+			var prog := kol.find(str(w.get("rzadkosc", "rare")))
+			var wszystkie: Array = state["magazyn"].duplicate()
+			for id in state["bohaterowie"]:
+				wszystkie.append_array(ekwipunek(id).values())
+			for it in wszystkie:
+				if kol.find(str(Data.item(str(it)).get("rzadkosc", "common"))) >= prog:
+					akt += 1
+		"pelny_ekwipunek":
+			for id in state["bohaterowie"]:
+				if ekwipunek(id).size() >= Data.items.get("sloty", []).size():
+					akt += 1
+	return [mini(akt, cel), cel]
+
+func osiagniecie_zdobyte(o: Dictionary) -> bool:
+	var p := osiagniecie_postep(o)
+	return int(p[0]) >= int(p[1])
+
+func osiagniecie_odebrane(id: String) -> bool:
+	return bool(state.get("osiagniecia", {}).get(id, false))
+
+func odbierz_osiagniecie(id: String) -> bool:
+	for o in Data.achievement_list():
+		if str(o["id"]) == id:
+			if osiagniecie_odebrane(id) or not osiagniecie_zdobyte(o):
+				return false
+			if not state.has("osiagniecia"):
+				state["osiagniecia"] = {}
+			state["osiagniecia"][id] = true
+			state["klejnoty"] = int(state["klejnoty"]) + int(o.get("nagroda_klejnoty", 0))
+			save()
+			return true
+	return false
+
+func osiagniecia_do_odebrania() -> int:
+	var n := 0
+	for o in Data.achievement_list():
+		if osiagniecie_zdobyte(o) and not osiagniecie_odebrane(str(o["id"])):
+			n += 1
+	return n
+
+## Najlepszy czas planszy z bossem na Hardcore (pusty słownik, gdy brak).
+func rekord(adv_id: String) -> Dictionary:
+	var adv := Data.adventure(adv_id)
+	var ost: int = adv.get("plansze", []).size()
+	for r in state["ranking"]:
+		if str(r.get("przygoda", "")) == str(adv.get("nazwa", adv_id)) and int(r.get("plansza", 0)) == ost:
+			return r
+	return {}
 
 # ---------------------------------------------------------------- przygody
 func ukonczona(adv_id: String, trudnosc: String = "") -> bool:

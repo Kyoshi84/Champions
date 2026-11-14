@@ -78,5 +78,37 @@ Liczba miejsc w drużynie: 2 na start, +2 za każdą ukończoną przygodę (maks
 
 ## 8. Czego jeszcze nie ma
 
-Sklep za klejnoty i skrzynie, ekran rankingu, osiągnięcia, role „Healer" jako osobny bohater, animacje gości w karczmie,
+Sklep za klejnoty i skrzynie (ekran jest, zamknięty), osobny ekran rankingu, role „Healer" jako osobny bohater, animacje gości w karczmie,
 docelowe grafiki poziomów oraz sprite'y Psa Chaosu, Zwierzoczłeka i Championa Chaosu.
+
+
+## 9. Koszary — struktura ekranów (`scripts/scenes/barracks.gd`, `scripts/scenes/koszary/`)
+
+Koszary to stos ekranów. Każdy ekran ma jedną funkcję; „Wróć” cofa o krok, herb w nagłówku wraca do Hubu,
+przycisk „wstecz” w Androidzie działa jak „Wróć”. Układ rozciąga się na szersze i węższe proporcje ekranu.
+
+```
+Hub ─┬─ Drużyna ── Bohater ─┬─ Rozwój i drzewko umiejętności
+     │                      └─ Ekwipunek
+     ├─ Formacja
+     ├─ Misje ── Szczegóły misji (trudność, nagrody, rekord Hardcore) ── start
+     ├─ Tawerna „Złoty Prosiak” ── Najemnik ── werbunek
+     ├─ Sklep (zamknięty)
+     └─ Osiągnięcia
+```
+
+Wygląd w jednym miejscu: `scripts/view/gk.gd` (kolory, ramy, czcionki, portret, pasek HP), ikony w `scripts/view/ikona.gd`,
+tło w `scripts/view/tlo_koszar.gd`. Własne tła: `assets/ui/koszary/` (patrz CZYTAJ.txt). Herb: `assets/ui/crest/crest_menu.png`.
+Kadr twarzy na portrecie: `portret_kadr` [x, y, szerokość] w `data/heroes.json` (ułamki obrazka).
+
+## 10. Zdrowie między misjami i lazaret (`data/balance.json` → `lazaret`)
+
+- Po wyjściu z misji (wygrana, powrót po porażce, przerwanie) HP bohaterów zostaje takie, jakie było.
+- **Ranny** (czerwony krzyżyk) odzyskuje 10% maks. HP na minutę, także gdy gra jest wyłączona. Wyrusza z aktualnym HP.
+- **Poległy** (wyszarzony portret) leży w lazarecie 3 minuty, wraca z 30% HP. Do tego czasu nie wyrusza na misję.
+- Natychmiast za korony: opatrzenie ran (do 4 × poziom) albo postawienie na nogi (10 × poziom).
+- „Spróbuj ponownie” po porażce nadal zaczyna planszę z pełnym HP — do lazaretu trafia się dopiero po powrocie do Koszar.
+
+## 11. Osiągnięcia (`data/achievements.json`) i kampanie (`data/adventures.json` → `kampanie`)
+
+Osiągnięcia liczą się ze stanu gry; nagrodę w klejnotach odbiera się ręcznie. Nowe osiągnięcie albo kampania to jeden wpis w danych.

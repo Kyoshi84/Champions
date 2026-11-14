@@ -45,6 +45,14 @@
     "miejsca_za_ukonczone_przygody": 2,
     "miejsca_max": 10
   },
+  "lazaret": {
+    "_opis": "Zdrowie między misjami. Ranni odzyskują 'regeneracja_na_min' maks. HP na minutę (także gdy gra jest wyłączona). Poległy wraca po 'czas_poleglego_s' z 'hp_po_powrocie' HP. Koszty natychmiastowego leczenia mnożone przez poziom bohatera.",
+    "regeneracja_na_min": 0.10,
+    "czas_poleglego_s": 180,
+    "hp_po_powrocie": 0.3,
+    "koszt_leczenia_za_poziom": 4,
+    "koszt_postawienia_za_poziom": 10
+  },
   "ekonomia": {
     "favor_za_przygode": 0.05,
     "ogd_na_procent_zlota": 10.0,

@@ -1,0 +1,5 @@
+Tła ekranów Koszar (opcjonalne). Gdy pliku nie ma, gra rysuje tło sama.
+  tlo.png      - Hub i ekrany drużyny (twierdza Carroburg nocą), dowolny rozmiar, najlepiej 1920x1080 lub szersze
+  tawerna.png  - Tawerna "Złoty Prosiak" (gdy brak: przyciemnione tło karczmy z prologu)
+  misje.png    - ekrany misji (gdy brak: przyciemniona wieś Hufduhof)
+Obraz jest skalowany tak, żeby wypełnić ekran (środek zawsze widoczny) i przyciemniany pod interfejs.

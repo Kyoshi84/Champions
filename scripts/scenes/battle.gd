@@ -52,7 +52,7 @@ func _ready() -> void:
 	_buduj_hud()
 	if heroes.is_empty():
 		faza = "pauza"
-		_nakladka("Brak drużyny", "Ustaw przynajmniej jednego bohatera w formacji.", [["Koszary", func(): main.go("koszary")]])
+		_nakladka("Brak drużyny", "Ustaw w formacji przynajmniej jednego zdrowego bohatera.", [["Koszary", func(): main.go("koszary")]])
 		return
 	_start(0)
 
@@ -137,6 +137,7 @@ func _koniec_planszy() -> void:
 		if bool(adv.get("prolog", false)):
 			_koniec_prologu()
 			return
+		Game.zapisz_zdrowie(heroes)
 		var n := Game.ukoncz_przygode(adv_id, trudnosc, rng)
 		var opis := "Zdobyte w walce: %d koron\nNagroda za przygodę: %d koron" % [roundi(_zebrane), int(n["korony"])]
 		if int(n["klejnoty"]) > 0:
@@ -160,7 +161,9 @@ func _koniec_planszy() -> void:
 			h.hp = h.max_hp
 		_start(plansza)]]
 	if not bool(adv.get("prolog", false)):
-		przyciski.append(["Koszary", func(): main.go("koszary")])
+		przyciski.append(["Koszary (drużyna trafi do lazaretu)", func():
+			Game.zapisz_zdrowie(heroes)
+			main.go("koszary")])
 		powod += "\nWzmocnij bohaterów, zmień formację albo dobierz inny skład."
 	_nakladka("Porażka", powod, przyciski)
 
@@ -283,8 +286,7 @@ func _buduj_hud() -> void:
 	if not bool(adv.get("prolog", false)):
 		var w := UiKit.button("Koszary", func():
 			if sim != null:
-				Game.dodaj_korony(0)
-				Game.save()
+				Game.zapisz_zdrowie(heroes)
 			main.go("koszary"), 150.0, 44.0)
 		w.position = Vector2(1118, 12)
 		hud.add_child(w)

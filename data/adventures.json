@@ -35,6 +35,11 @@
   },
 
   "kolejnosc": ["piwnice_carroburga", "trakt_do_hufduhofu", "odbicie_hufduhofu"],
+  "kampanie": [
+    { "id": "popioly_hufduhofu", "nazwa": "Kampania I: Popioły Hufduhofu",
+      "opis": "Chaos spalił Hufduhof. Szkarłatna Gwardia zbiera drużynę, oczyszcza własne piwnice, przebija się traktem i wraca po wieś.",
+      "przygody": ["piwnice_carroburga", "trakt_do_hufduhofu", "odbicie_hufduhofu"] }
+  ],
   "przygody": {
     "prolog_wies": {
       "nazwa": "Ucieczka z Hufduhofu",

@@ -1,0 +1,19 @@
+{
+  "_opis": "Osiągnięcia. warunek.typ: prolog | przygody (liczba ukończonych) | trudnosc (liczba przygód ukończonych na 'trudnosc') | bohaterowie | poziom (najwyższy poziom bohatera) | specjalizacje | miejsca | favor (procent) | rzadkosc (posiadany przedmiot co najmniej tej rzadkości) | pelny_ekwipunek (bohater z kompletem slotów). nagroda_klejnoty odbiera się ręcznie na ekranie Osiągnięć.",
+  "kolejnosc_rzadkosci": ["common", "uncommon", "rare", "epic", "legendary"],
+  "osiagniecia": [
+    { "id": "ocalaly", "nazwa": "Ocalały z Hufduhofu", "opis": "Ukończ prolog.", "warunek": { "typ": "prolog", "cel": 1 }, "nagroda_klejnoty": 5 },
+    { "id": "szczurolap", "nazwa": "Szczurołap", "opis": "Ukończ pierwszą przygodę.", "warunek": { "typ": "przygody", "cel": 1 }, "nagroda_klejnoty": 5 },
+    { "id": "odbicie", "nazwa": "Popioły pomszczone", "opis": "Ukończ wszystkie trzy przygody kampanii.", "warunek": { "typ": "przygody", "cel": 3 }, "nagroda_klejnoty": 20 },
+    { "id": "twarda_sztuka", "nazwa": "Twarda sztuka", "opis": "Ukończ przygodę na poziomie Hard.", "warunek": { "typ": "trudnosc", "trudnosc": "hard", "cel": 1 }, "nagroda_klejnoty": 10 },
+    { "id": "bez_odwrotu", "nazwa": "Bez odwrotu", "opis": "Ukończ przygodę na poziomie Hardcore.", "warunek": { "typ": "trudnosc", "trudnosc": "hardcore", "cel": 1 }, "nagroda_klejnoty": 25 },
+    { "id": "kompania", "nazwa": "Kompania", "opis": "Miej w Gwardii czterech bohaterów.", "warunek": { "typ": "bohaterowie", "cel": 4 }, "nagroda_klejnoty": 10 },
+    { "id": "weteran", "nazwa": "Weteran", "opis": "Rozwiń bohatera do poziomu 10.", "warunek": { "typ": "poziom", "cel": 10 }, "nagroda_klejnoty": 10 },
+    { "id": "mistrz", "nazwa": "Mistrz", "opis": "Rozwiń bohatera do poziomu 20.", "warunek": { "typ": "poziom", "cel": 20 }, "nagroda_klejnoty": 30 },
+    { "id": "obrana_droga", "nazwa": "Obrana droga", "opis": "Wybierz specjalizację dla dwóch bohaterów.", "warunek": { "typ": "specjalizacje", "cel": 2 }, "nagroda_klejnoty": 15 },
+    { "id": "pelny_szyk", "nazwa": "Pełny szyk", "opis": "Odblokuj sześć miejsc w drużynie.", "warunek": { "typ": "miejsca", "cel": 6 }, "nagroda_klejnoty": 10 },
+    { "id": "laska_ulryka", "nazwa": "Łaska Ulryka", "opis": "Zdobądź 15% Favoru.", "warunek": { "typ": "favor", "cel": 15 }, "nagroda_klejnoty": 15 },
+    { "id": "lup_wojenny", "nazwa": "Łup wojenny", "opis": "Zdobądź przedmiot rzadki lub lepszy.", "warunek": { "typ": "rzadkosc", "rzadkosc": "rare", "cel": 1 }, "nagroda_klejnoty": 10 },
+    { "id": "pod_bronia", "nazwa": "Pod bronią", "opis": "Wyposaż bohatera we wszystkie sześć slotów.", "warunek": { "typ": "pelny_ekwipunek", "cel": 1 }, "nagroda_klejnoty": 15 }
+  ]
+}
