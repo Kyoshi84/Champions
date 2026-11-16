@@ -112,3 +112,15 @@ Kadr twarzy na portrecie: `portret_kadr` [x, y, szerokość] w `data/heroes.json
 ## 11. Osiągnięcia (`data/achievements.json`) i kampanie (`data/adventures.json` → `kampanie`)
 
 Osiągnięcia liczą się ze stanu gry; nagrodę w klejnotach odbiera się ręcznie. Nowe osiągnięcie albo kampania to jeden wpis w danych.
+
+## 12. Przebieg planszy (wzorowany na Idle Champions)
+
+- **Ciągły napływ:** wrogowie wchodzą pojedynczo co `naplyw_odstep` s (`data/balance.json`), bez przerw między grupami.
+  "fale" w danych planszy podają kolejność i skład; na planszy z bossem posiłki czekają na swoje "t". Plansza może mieć własny "odstep".
+- **Plansza ukończona** nie zatrzymuje walki: przez ekran przejeżdża napis, drużyna rusza dalej, a wrogowie kolejnej planszy już idą.
+  Każda przygoda to tor plansz zakończony bossem; tor widać w rogu ekranu (ukończone, bieżąca, kłódki, czaszka bossa).
+- **Doskok:** atak wręcz bohatera jest pokazany jako doskok do celu i powrót na pole. To tylko obraz ciosu - cel, zasięg i obrażenia liczy Combat po staremu.
+- **Monety** wypadają z pokonanych wrogów i po chwili same lecą do licznika; licznik rośnie, gdy dolecą.
+- **Krąg pod bohaterem:** obrażenia jednego ciosu (przed pancerzem celu) i wskaźnik odnowienia ataku. **Wrogowie** mają pod stopami nazwę i HP.
+- Trafiony wróg błyska na biało; krew zostaje na ziemi do końca planszy.
+- **Trening:** poziom bohatera podnosi się wyłącznie w Koszarach, za korony.

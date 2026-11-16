@@ -22,6 +22,14 @@ var statusy: Array = []
 var wys: float = 100.0
 var _blysk: float = 0.0
 var martwy: bool = false
+var hp_akt: float = 0.0
+var hp_max: float = 0.0
+var pokaz_etykiete: bool = false     # wrogowie: nazwa i liczby HP pod stopami
+var w_doskoku: bool = false
+var _mat: ShaderMaterial = null
+
+const SHADER_BLYSK := "shader_type canvas_item;\nuniform float sila = 0.0;\nuniform vec3 barwa = vec3(1.0);\nvoid fragment() {\n\tvec4 c = texture(TEXTURE, UV);\n\tCOLOR = vec4(mix(c.rgb, barwa, sila), c.a) * COLOR;\n}\n"
+static var _shader: Shader = null
 
 func setup(folder_: String, dir_: String, placeholder: Dictionary, nazwa: String, wrog_: bool, boss_: bool = false) -> void:
 	folder = folder_
@@ -47,7 +55,16 @@ func setup(folder_: String, dir_: String, placeholder: Dictionary, nazwa: String
 			spr.offset = -Vector2(float(piv[0]), float(piv[1]))
 		else:
 			spr.offset = -Vector2(t.get_width() * 0.5, t.get_height())
+		if _shader == null:
+			_shader = Shader.new()
+			_shader.code = SHADER_BLYSK
+		_mat = ShaderMaterial.new()
+		_mat.shader = _shader
+		# trafiony wróg błyska na biało, trafiony bohater na czerwono
+		_mat.set_shader_parameter("barwa", Vector3(1, 1, 1) if wrog else Vector3(1.0, 0.25, 0.2))
+		spr.material = _mat
 		add_child(spr)
+	pokaz_etykiete = wrog
 	play("idle")
 
 func ma_sprite() -> bool:
@@ -85,19 +102,38 @@ func _process(delta: float) -> void:
 		play("idle")
 	_klatka()
 	if _blysk > 0.0:
-		_blysk = maxf(0.0, _blysk - delta * 5.0)
-		modulate = Color(1, 1, 1).lerp(Color(3, 1.2, 1.2), _blysk) if not martwy else modulate
+		_blysk = maxf(0.0, _blysk - delta * 7.0)
+		if _mat != null:
+			_mat.set_shader_parameter("sila", minf(1.0, _blysk * 1.6))
 	if spr == null:
 		queue_redraw()
 
 func blysk() -> void:
 	_blysk = 1.0
 
-func ustaw(hp_: float, statusy_: Array) -> void:
-	if absf(hp_ - hp) > 0.001 or statusy_ != statusy:
+func ustaw(hp_: float, statusy_: Array, akt: float = 0.0, maks: float = 0.0) -> void:
+	if absf(hp_ - hp) > 0.001 or statusy_ != statusy or absf(akt - hp_akt) > 0.4:
 		hp = hp_
 		statusy = statusy_
+		hp_akt = akt
+		hp_max = maks
 		queue_redraw()
+
+## Wizualizacja ataku wręcz: szybki doskok do celu, cios, jeszcze szybszy powrót na pole. Zasad walki nie zmienia.
+func doskok(cel: Vector2, dom: Vector2, skala_czasu: float = 1.0) -> void:
+	if martwy:
+		return
+	var k := 1.0 / maxf(skala_czasu, 0.1)
+	w_doskoku = true
+	z_index = 5
+	var tw := create_tween()
+	tw.tween_property(self, "position", cel, 0.13 * k).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_callback(func(): play("attack", false, 0.3 * k))
+	tw.tween_interval(0.3 * k)
+	tw.tween_property(self, "position", dom, 0.1 * k).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.tween_callback(func():
+		w_doskoku = false
+		z_index = 0)
 
 func umrzyj() -> void:
 	martwy = true
@@ -121,6 +157,10 @@ func _draw() -> void:
 		draw_circle(Vector2(0, -wys + bob + w * 0.3), w * 0.36, c.lightened(0.25))
 		var kier := -1.0 if wrog else 1.0
 		draw_rect(Rect2(kier * w * 0.5 - (6 if kier < 0 else 0), -wys * 0.62 + bob, 6, wys * 0.3), c.darkened(0.3))
+		if _blysk > 0.0:
+			var b := Color(1, 1, 1, minf(1.0, _blysk * 1.6)) if wrog else Color(1.0, 0.25, 0.2, minf(1.0, _blysk))
+			draw_rect(body, b)
+			draw_circle(Vector2(0, -wys + bob + w * 0.3), w * 0.36, b)
 		if anim == "attack":
 			draw_line(Vector2(kier * w * 0.5, -wys * 0.6), Vector2(kier * (w * 0.5 + 46), -wys * 0.75), Color(0.9, 0.9, 0.85), 4)
 	if pokaz_hp:
@@ -139,3 +179,13 @@ func _draw() -> void:
 				"tarcza": kol = Color(0.8, 0.8, 0.9)
 			draw_rect(Rect2(sx, by - 10, 8, 8), kol)
 			sx += 10.0
+	if pokaz_etykiete and pokaz_hp and hp_max > 0.0:
+		var f := Gk.f_gruby()
+		var n := etykieta
+		var nw := f.get_string_size(n, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+		draw_string_outline(f, Vector2(-nw * 0.5, 15), n, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, 4, Color(0.02, 0.01, 0.01, 0.9))
+		draw_string(f, Vector2(-nw * 0.5, 15), n, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.95, 0.88, 0.75))
+		var t := "%d / %d" % [ceili(hp_akt), roundi(hp_max)]
+		var tw2 := f.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		draw_string_outline(f, Vector2(-tw2 * 0.5, 29), t, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, 4, Color(0.02, 0.01, 0.01, 0.9))
+		draw_string(f, Vector2(-tw2 * 0.5, 29), t, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.95, 0.45, 0.4))

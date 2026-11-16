@@ -1,6 +1,6 @@
 class_name KRozwoj
 extends RefCounted
-## 4. Rozwój bohatera: awans poziomu i drzewko umiejętności z rozwidleniem specjalizacji.
+## 4. Rozwój bohatera: trening (awans poziomu za korony, tylko w Koszarach) i drzewko umiejętności z rozwidleniem specjalizacji.
 ## Węzeł drzewka pokazuje tylko nazwę i próg; opis wybranego węzła jest w panelu pod drzewkiem.
 
 static func buduj(k: BarracksScene, c: Control, p: Dictionary) -> void:
@@ -32,7 +32,7 @@ static func buduj(k: BarracksScene, c: Control, p: Dictionary) -> void:
 	for s in z["wszystkie"]:
 		if not s["odblokowana"] and (nast == "" ):
 			nast = "   Następna umiejętność: %s (poziom %d)." % [str(s.get("nazwa", "")), int(s.get("prog", 1))]
-	gv.add_child(Gk.tekst("Każdy poziom: %s.%s" % [",  ".join(wz), nast], 16, Gk.PRZYG))
+	gv.add_child(Gk.tekst("Trening w Koszarach podnosi poziom. Każdy poziom: %s.%s" % [",  ".join(wz), nast], 16, Gk.PRZYG))
 	gh.add_child(gv)
 	var aw := Gk.przycisk("", func():
 		if Game.awansuj(id):
@@ -45,7 +45,7 @@ static func buduj(k: BarracksScene, c: Control, p: Dictionary) -> void:
 		aw.text = "Poziom maksymalny"
 		aw.disabled = true
 	else:
-		aw.text = "Awansuj · %d koron" % Game.koszt_awansu(id)
+		aw.text = "Trening · %d koron" % Game.koszt_awansu(id)
 		aw.disabled = not Game.moze_awansowac(id)
 	gh.add_child(aw)
 	v.add_child(gora)

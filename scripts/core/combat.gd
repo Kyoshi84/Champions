@@ -25,9 +25,8 @@ var strzal_cd: float = 0.0
 var strzal_mnoznik: float = 1.0
 var _acc: float = 0.0
 var _uid: int = 1000
-var _fale: Array = []
-var _fale_baza: float = 0.0
-var _ostatni_spawn: float = 0.0
+var _kolejka: Array = []       # [{t, id}] - wrogowie czekający na wejście, w kolejności
+var _lacznie: int = 0          # ilu wrogów ma plansza (bez pętli)
 var _furia_t: float = 0.0
 var _skala_hp: float = 1.0
 var _skala_obr: float = 1.0
@@ -44,15 +43,16 @@ func setup(hero_units: Array, adventure: Dictionary, board_idx: int, difficulty:
 	strzal_mnoznik = float(adventure.get("strzal_mnoznik", 1.0))
 	_skala_hp = float(adventure.get("skala_hp", 1.0)) * float(board.get("skala_hp", 1.0)) * float(diff.get("hp", 1.0))
 	_skala_obr = float(adventure.get("skala_obrazen", 1.0)) * float(board.get("skala_obrazen", 1.0)) * float(diff.get("obrazenia", 1.0))
-	_fale = []
-	for f in board.get("fale", []):
-		_fale.append({"t": float(f.get("t", 0.0)), "wrogowie": f.get("wrogowie", {}), "done": false})
+	_kolejka = []
+	_lacznie = 0
+	_zbuduj_kolejke(0.0)
 	var i := 0
 	for h in heroes:
 		if h.uid == 0:
 			_uid += 1
 			h.uid = _uid
 		h.cd = 1.0 + 0.35 * i
+		h.cd_max = h.cd
 		h.cel = null
 		h.statusy = []
 		i += 1
@@ -88,20 +88,21 @@ func _tick(dt: float) -> void:
 	enemies = enemies.filter(func(e): return e.alive)
 	_sprawdz_koniec()
 
-# ---------------------------------------------------------------- fale
-func _spawn() -> void:
-	var tory: Array = B.get("tory_y", [340, 410, 480, 550, 620])
-	var wszystkie := true
-	for f in _fale:
-		if f["done"]:
-			continue
-		if time < _fale_baza + float(f["t"]):
-			wszystkie = false
-			continue
-		f["done"] = true
-		_ostatni_spawn = time
-		var n := 0
-		var ids: Array = f["wrogowie"].keys()
+# ---------------------------------------------------------------- napływ wrogów
+## Wrogowie nie wchodzą grupami, tylko płyną pojedynczo co 'naplyw_odstep' sekund. Wpis w "fale" planszy podaje,
+## kto idzie w jakiej kolejności; jego "t" to najwcześniejszy moment wejścia. Na zwykłej planszy kolejna grupa
+## rusza zaraz po poprzedniej (bez przerw), na planszy z bossem posiłki czekają na swoje "t".
+func _odstep() -> float:
+	return float(board.get("odstep", B.get("naplyw_odstep", 1.8)))
+
+func _zbuduj_kolejke(baza: float) -> void:
+	var odstep := _odstep()
+	var z_bossem := bool(board.get("boss", false))
+	var t := baza
+	var pierwsza := true
+	for f in board.get("fale", []):
+		var lista: Array = []
+		var ids: Array = f.get("wrogowie", {}).keys()
 		ids.sort()
 		for id in ids:
 			var def := Data.enemy(str(id))
@@ -109,33 +110,55 @@ func _spawn() -> void:
 				push_error("Nieznany wróg w planszy: " + str(id))
 				continue
 			var ile := int(f["wrogowie"][id])
-			if not bool(def.get("boss", false)):
-				ile = ceili(ile * float(diff.get("liczba", 1.0)))
+			if bool(def.get("boss", false)):
+				for k in ile:
+					lista.push_front(str(id))        # boss wchodzi pierwszy
+				continue
+			ile = ceili(ile * float(diff.get("liczba", 1.0)))
 			for k in ile:
-				var e := Progression.wrog(str(id), _skala_hp, _skala_obr)
-				_uid += 1
-				e.uid = _uid
-				e.tor = 2 if e.boss else rng.randi_range(0, tory.size() - 1)
-				e.x = float(B.get("spawn_x", 1340)) + n * 46.0 + rng.randf_range(0.0, 30.0)
-				e.y = float(tory[e.tor]) + rng.randf_range(-8.0, 8.0)
-				e.cd = float(e.atak.get("czas", 3.0)) * rng.randf_range(0.3, 0.9)
-				e.niesmiertelny = board.get("niesmiertelni", []).has(str(id))
-				if e.boss:
-					_boss_pojawil_sie = true
-				enemies.append(e)
-				events.append({"typ": "spawn", "uid": e.uid})
-				n += 1
-	var petla: float = float(board.get("petla_fal", 0.0))
-	if wszystkie and petla > 0.0 and time >= _ostatni_spawn + petla:
-		_fale_baza = time
-		for f in _fale:
-			f["done"] = false
+				lista.append(str(id))
+		# przetasowanie zwykłych wrogów (deterministyczne - z ziarna walki), boss zostaje na czele
+		var od := 0
+		while od < lista.size() and bool(Data.enemy(lista[od]).get("boss", false)):
+			od += 1
+		for i in range(lista.size() - 1, od, -1):
+			var j := rng.randi_range(od, i)
+			var tmp: String = lista[i]
+			lista[i] = lista[j]
+			lista[j] = tmp
+		var start := baza + float(f.get("t", 0.0))
+		if not pierwsza and not z_bossem:
+			start = minf(start, t)
+		t = maxf(t, start)
+		for id in lista:
+			_kolejka.append({"t": t, "id": id})
+			t += odstep
+		pierwsza = false
+	_lacznie += _kolejka.size() if baza == 0.0 else 0
+
+func _spawn() -> void:
+	var tory: Array = B.get("tory_y", [340, 410, 480, 550, 620])
+	while not _kolejka.is_empty() and time >= float(_kolejka[0]["t"]):
+		var id := str(_kolejka.pop_front()["id"])
+		var e := Progression.wrog(id, _skala_hp, _skala_obr)
+		_uid += 1
+		e.uid = _uid
+		e.tor = 2 if e.boss else rng.randi_range(0, tory.size() - 1)
+		e.x = float(B.get("spawn_x", 1340)) + rng.randf_range(0.0, 30.0)
+		e.y = float(tory[e.tor]) + rng.randf_range(-8.0, 8.0)
+		e.cd = float(e.atak.get("czas", 3.0)) * rng.randf_range(0.3, 0.9)
+		e.cd_max = maxf(e.cd, 0.1)
+		e.niesmiertelny = board.get("niesmiertelni", []).has(id)
+		if e.boss:
+			_boss_pojawil_sie = true
+		enemies.append(e)
+		events.append({"typ": "spawn", "uid": e.uid})
+	# plansze "przetrwaj" i "zbierz łup": napływ nie kończy się nigdy
+	if _kolejka.is_empty() and float(board.get("petla_fal", 0.0)) > 0.0:
+		_zbuduj_kolejke(time + _odstep() * 2.0 - float(board.get("fale", [{}])[0].get("t", 0.0)))
 
 func fale_skonczone() -> bool:
-	for f in _fale:
-		if not f["done"]:
-			return false
-	return true
+	return _kolejka.is_empty()
 
 # ---------------------------------------------------------------- statusy
 func _tick_statusy(u: CUnit, dt: float) -> void:
@@ -191,6 +214,7 @@ func _ruch_bohatera(h: CUnit, dt: float) -> void:
 		return
 	_atak(h, cel)
 	h.cd = Wfrp.czas_ataku(float(h.atak.get("czas", 5.0)), h.cechy)
+	h.cd_max = h.cd
 
 func _cel_bohatera(h: CUnit) -> CUnit:
 	var kand: Array = []
@@ -402,7 +426,7 @@ func _zadaj(t: CUnit, dmg: float, rodzaj: String) -> void:
 		lup += 1
 		var z := t.zloto * mnoznik_zlota * float(diff.get("zloto", 1.0))
 		zloto += z
-		events.append({"typ": "zloto", "uid": t.uid, "ile": z})
+		events.append({"typ": "zloto", "uid": t.uid, "ile": z, "x": t.x, "y": t.y})
 	else:
 		Formation.przelicz_aury(heroes)
 		_przelicz_zloto()
@@ -492,15 +516,21 @@ func opis_celu() -> String:
 	return "Pokonaj wszystkich wrogów (%d)" % _pozostalo()
 
 func _pozostalo() -> int:
-	var n := enemies.size()
-	for f in _fale:
-		if not f["done"]:
-			for id in f["wrogowie"]:
-				var ile := int(f["wrogowie"][id])
-				if not bool(Data.enemy(str(id)).get("boss", false)):
-					ile = ceili(ile * float(diff.get("liczba", 1.0)))
-				n += ile
-	return n
+	return enemies.size() + _kolejka.size()
+
+## Postęp celu planszy 0..1 (do paska w rogu ekranu).
+func postep_celu() -> float:
+	match str(board.get("cel", "pokonaj_wszystkich")):
+		"zabij_bossa":
+			for e in enemies:
+				if e.boss:
+					return 1.0 - e.hp_ulamek()
+			return 1.0 if _boss_pojawil_sie else 0.0
+		"przetrwaj":
+			return clampf(time / maxf(float(board.get("czas", 30)), 1.0), 0.0, 1.0)
+		"zbierz_lup":
+			return clampf(float(lup) / maxf(float(board.get("ile", 5)), 1.0), 0.0, 1.0)
+	return 1.0 - float(_pozostalo()) / maxf(float(_lacznie), 1.0)
 
 func _sprawdz_koniec() -> void:
 	if result != "":

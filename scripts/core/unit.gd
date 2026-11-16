@@ -26,6 +26,7 @@ var zachowanie: String = "wrecz"
 var predkosc: float = 0.0
 var zloto: float = 0.0
 var cd: float = 0.0            # czas do następnego ataku
+var cd_max: float = 1.0        # pełny czas bieżącego odnowienia (do wskaźnika pod bohaterem)
 var licznik_atakow: int = 0
 var statusy: Array = []        # [{typ, czas, wartosc}]
 var aury: Dictionary = {}

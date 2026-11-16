@@ -114,14 +114,14 @@ static func buduj(k: BarracksScene, c: Control, p: Dictionary) -> void:
 		if not gal.is_empty():
 			v.add_child(Gk.tekst("%s — %s" % [str(gal["nazwa"]), str(gal["opis"])], 17, Gk.ZIELEN))
 		elif Progression.moze_wybrac_spec(def, Game.poziom(id), Game.spec(id)):
-			v.add_child(Gk.tekst("Do wyboru! Otwórz „Rozwój i umiejętności”.", 17, Gk.ZLOTO_J))
+			v.add_child(Gk.tekst("Do wyboru! Otwórz „Trening i umiejętności”.", 17, Gk.ZLOTO_J))
 		else:
 			v.add_child(Gk.tekst("Wybór od poziomu %d." % int(sp.get("prog", 10)), 17, Gk.PRZYG))
 
 	# ---- przejścia do podekranów
 	var dol := Gk.hb(10)
 	var moze := Game.moze_awansowac(id) or Progression.moze_wybrac_spec(def, Game.poziom(id), Game.spec(id))
-	var b1 := Gk.przycisk("Rozwój i umiejętności", func(): k.idz("rozwoj", {"id": id}), moze, 0.0, 54.0, "awans")
+	var b1 := Gk.przycisk("Trening i umiejętności", func(): k.idz("rozwoj", {"id": id}), moze, 0.0, 54.0, "awans")
 	b1.name = "btn_rozwoj"
 	var b2 := Gk.przycisk("Ekwipunek  (%d/%d)" % [Game.ekwipunek(id).size(), Data.items.get("sloty", []).size()],
 		func(): k.idz("ekwipunek", {"id": id}), false, 0.0, 54.0, "sakwa")

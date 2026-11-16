@@ -17,6 +17,7 @@
     "linia_tylu_x": 290,
     "tory_y": [340, 410, 480, 550, 620],
     "spawn_x": 1340,
+    "naplyw_odstep": 1.8,
     "ekran_x": 1260,
     "kontakt_wrecz": 78,
     "leczenie_miedzy_planszami": 0.3,

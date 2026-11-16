@@ -130,3 +130,29 @@ func test_koszary_i_pierwsza_przygoda():
 	Game.new_game(false)
 	assert_true(Game.load_game())
 	assert_eq(int(Game.state["korony"]), k2, "zapis progresji działa")
+
+func test_plansza_ukonczona_nie_zatrzymuje_walki():
+	Game.ukoncz_prolog()
+	Game.state["bohaterowie"]["ivo"]["poziom"] = 20
+	main.go("bitwa", {"przygoda": "piwnice_carroburga", "trudnosc": "normal"})
+	await wait_frames(2)
+	var b: BattleScene = main.current
+	var fazy_miedzy_planszami: Array = []
+	var poprzednia := 0
+	for i in 9000:
+		b._process(0.1)
+		if b.plansza != poprzednia:
+			poprzednia = b.plansza
+			fazy_miedzy_planszami.append(b.faza)
+			assert_eq(b.tor_plansz.get_child_count() - b.tor_plansz.get_children().filter(func(c): return c.is_queued_for_deletion()).size(), 5, "tor pokazuje wszystkie plansze przygody")
+		if b.faza == "pauza":
+			break
+		var best: CUnit = null
+		for e in b.sim.enemies:
+			if e.alive and e.x < 1250 and (best == null or e.x < best.x):
+				best = e
+		if best != null:
+			b.sim.strzal_gracza(best.x, best.y - 30)
+	assert_eq(fazy_miedzy_planszami, ["walka", "walka", "walka", "walka"], "po każdej planszy walka trwa dalej bez pauzy")
+	assert_eq(b.sim.result, "wygrana")
+	assert_true(bool(b.sim.board.get("boss", false)), "przygoda kończy się planszą z bossem")

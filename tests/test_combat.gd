@@ -148,3 +148,48 @@ func test_champion_chaosu_wymaga_magii():
 	var adv := Data.adventure("odbicie_hufduhofu")
 	assert_eq(rozegraj(z_ursa, adv, 4, true, 35, 600.0, true).result, "wygrana", "z Ursą (magia omija pancerz) boss pada")
 	assert_eq(rozegraj(bez, adv, 4, true, 35, 600.0, true).result, "przegrana", "bez magii pancerz Championa jest za gruby")
+
+# ---------------------------------------------------------------- ciągły napływ, postęp celu, monety
+func test_wrogowie_naplywaja_pojedynczo_bez_przerw():
+	var adv := Data.adventure("piwnice_carroburga")
+	var c := Combat.new()
+	c.setup([Progression.bohater("borubar", 20, "", {}, 1)], adv, 0, Data.difficulty("normal"), 7)
+	var lacznie := 0
+	for f in adv["plansze"][0]["fale"]:
+		for id in f["wrogowie"]:
+			lacznie += int(f["wrogowie"][id])
+	var czasy: Array = []
+	for i in 400:
+		c.step(0.1)
+		for ev in c.events:
+			if str(ev["typ"]) == "spawn":
+				czasy.append(c.time)
+		c.events.clear()
+		if c.result != "":
+			break
+	assert_eq(czasy.size(), lacznie, "wchodzi tylu wrogów, ilu jest w danych planszy")
+	var odstep := float(Data.walka().get("naplyw_odstep", 1.8))
+	for i in range(1, czasy.size()):
+		var d: float = czasy[i] - czasy[i - 1]
+		assert_almost_eq(d, odstep, 0.11, "wrogowie wchodzą pojedynczo w równych odstępach, bez przerw między grupami")
+
+func test_postep_celu_i_monety_z_wrogow():
+	var c := Combat.new()
+	c.setup([Progression.bohater("ivo", 20, "", {}, 2)], Data.adventure("piwnice_carroburga"), 0, Data.difficulty("normal"), 3)
+	assert_almost_eq(c.postep_celu(), 0.0, 0.001)
+	var monety := 0
+	var poprzedni := 0.0
+	for i in 900:
+		c.step(0.1)
+		for ev in c.events:
+			if str(ev["typ"]) == "zloto":
+				monety += 1
+				assert_true(ev.has("x") and ev.has("y"), "moneta wie, gdzie padł wróg")
+		c.events.clear()
+		assert_gte(c.postep_celu(), poprzedni - 0.001, "postęp celu nie cofa się")
+		poprzedni = c.postep_celu()
+		if c.result != "":
+			break
+	assert_eq(c.result, "wygrana")
+	assert_almost_eq(c.postep_celu(), 1.0, 0.001)
+	assert_eq(monety, c.zabici, "każdy pokonany wróg upuszcza monety")

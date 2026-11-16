@@ -13,7 +13,7 @@ extends Control
 ##      └─ Osiągnięcia
 
 const EKRANY := {
-	"hub": "Koszary Szkarłatnej Gwardii", "druzyna": "Drużyna", "bohater": "Bohater", "rozwoj": "Rozwój i umiejętności",
+	"hub": "Koszary Szkarłatnej Gwardii", "druzyna": "Drużyna", "bohater": "Bohater", "rozwoj": "Trening i umiejętności",
 	"ekwipunek": "Ekwipunek", "formacja": "Formacja drużyny", "misje": "Misje i kampanie", "misja": "Szczegóły misji",
 	"tawerna": "Tawerna „Złoty Prosiak”", "najemnik": "Najemnik", "sklep": "Sklep", "osiagniecia": "Osiągnięcia"}
 
