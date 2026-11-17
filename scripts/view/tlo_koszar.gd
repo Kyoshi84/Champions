@@ -4,6 +4,9 @@ extends Control
 
 var tex: Texture2D = null
 var przyciemnienie: float = 0.62
+var kolor_przyciemnienia: Color = Color(0.03, 0.012, 0.012)
+## Menu główne: dodatkowy miękki cień za środkową kolumną (logo + przyciski), żeby tło mogło być jaśniejsze.
+var cien_srodka: float = 0.0
 
 static func dla(ekran: String) -> TloKoszar:
 	var t := TloKoszar.new()
@@ -11,7 +14,12 @@ static func dla(ekran: String) -> TloKoszar:
 	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	t.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	var kandydaci: Array = ["res://assets/ui/koszary/tlo.png"]
-	if ekran in ["tawerna", "najemnik"]:
+	if ekran == "menu":
+		kandydaci = ["res://assets/ui/menu/tlo.png", "res://assets/ui/koszary/tlo.png"]
+		t.przyciemnienie = 0.38
+		t.kolor_przyciemnienia = Color(0.025, 0.02, 0.03)
+		t.cien_srodka = 0.45
+	elif ekran in ["tawerna", "najemnik"]:
 		kandydaci = ["res://assets/ui/koszary/tawerna.png", "res://assets/levels/karczma/tlo.png"]
 		t.przyciemnienie = 0.72
 	elif ekran in ["misje", "misja"]:
@@ -41,7 +49,17 @@ func _draw() -> void:
 		var sk := maxf(w / ts.x, h / ts.y)
 		var wym := ts * sk
 		draw_texture_rect(tex, Rect2((Vector2(w, h) - wym) * 0.5, wym), false)
-		draw_rect(Rect2(0, 0, w, h), Color(0.03, 0.012, 0.012, przyciemnienie))
+		var kp := kolor_przyciemnienia
+		draw_rect(Rect2(0, 0, w, h), Color(kp.r, kp.g, kp.b, przyciemnienie))
+		if cien_srodka > 0.0:
+			# pionowe pasy coraz ciemniejsze ku środkowi: łagodny cień pod logo i ramką przycisków
+			var n := 16
+			for i in n:
+				var f := float(i) / float(n)
+				var a := cien_srodka * pow(sin(f * PI), 2.0) / float(n) * 2.2
+				var szer := w * 0.62
+				var x0 := (w - szer) * 0.5 + szer * f
+				draw_rect(Rect2(x0, 0, szer / n + 1.0, h), Color(0, 0, 0, a))
 	else:
 		_sylwetka(w, h)
 	# winieta

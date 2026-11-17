@@ -8,7 +8,7 @@ func _ready() -> void:
 	theme = Gk.theme()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	Audio.play_track("menu")
-	add_child(TloKoszar.dla("hub"))
+	add_child(TloKoszar.dla("menu"))
 
 	var srodek := CenterContainer.new()
 	srodek.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

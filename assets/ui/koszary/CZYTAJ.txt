@@ -3,3 +3,5 @@ Tła ekranów Koszar (opcjonalne). Gdy pliku nie ma, gra rysuje tło sama.
   tawerna.png  - Tawerna "Złoty Prosiak" (gdy brak: przyciemnione tło karczmy z prologu)
   misje.png    - ekrany misji (gdy brak: przyciemniona wieś Hufduhof)
 Obraz jest skalowany tak, żeby wypełnić ekran (środek zawsze widoczny) i przyciemniany pod interfejs.
+
+Menu główne: assets/ui/menu/tlo.png (panorama Carroburga nocą). Gdy brak - tlo.png Koszar albo rysowana sylwetka.
