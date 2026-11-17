@@ -124,3 +124,12 @@ Osiągnięcia liczą się ze stanu gry; nagrodę w klejnotach odbiera się ręcz
 - **Krąg pod bohaterem:** obrażenia jednego ciosu (przed pancerzem celu) i wskaźnik odnowienia ataku. **Wrogowie** mają pod stopami nazwę i HP.
 - Trafiony wróg błyska na biało; krew zostaje na ziemi do końca planszy.
 - **Trening:** poziom bohatera podnosi się wyłącznie w Koszarach, za korony.
+
+## 13. Karta postaci (ekran bohatera)
+
+Wzorowana na papierowej karcie WFRP, rozłożona na trzy kolumny (`scripts/scenes/koszary/bohater.gd`, klocki w `karta.gd`).
+- **Strona I:** Postać, Szczegóły osobiste, Profil postaci (Początkowa / Rozwinięcie / Obecna, cechy główne i dodatkowe) |
+  logo i Wyposażenie na sylwetce (sloty jak lokacje trafień z rzutem k100) | Służba, Doświadczenie, Walka, Podsumowanie zdolności.
+- **Strona II:** Historia, Rola w drużynie, Pochodzenie | Umiejętności i talenty z opisami, Specjalizacja.
+- Szczegóły osobiste (rasa, wiek, oczy, znak gwiezdny…) są w `data/heroes.json` → `karta` i można je dowolnie zmieniać.
+- Logo „Carroburg Champions”: `scripts/view/logo.gd` (Cinzel Black + ozdobne skrajne litery Cinzel Decorative, złoty gradient z shadera).

@@ -42,7 +42,7 @@ static func f_tytul() -> Font:
 static func _alegreya(waga: int) -> Font:
 	var fv := FontVariation.new()
 	fv.base_font = load("res://assets/fonts/Alegreya.ttf")
-	fv.variation_opentype = {"wght": waga}
+	fv.variation_opentype = {TextServerManager.get_primary_interface().name_to_tag("wght"): waga}
 	return fv
 
 static func f_tekst() -> Font:
@@ -244,7 +244,7 @@ static func _kursywa() -> Font:
 	if _f_kursywa == null:
 		var fv := FontVariation.new()
 		fv.base_font = load("res://assets/fonts/Alegreya.ttf")
-		fv.variation_opentype = {"wght": 600}
+		fv.variation_opentype = {TextServerManager.get_primary_interface().name_to_tag("wght"): 600}
 		fv.variation_transform = Transform2D(Vector2(1, 0), Vector2(-0.12, 1), Vector2.ZERO)
 		_f_kursywa = fv
 	return _f_kursywa
@@ -356,6 +356,12 @@ static func portret(hero_id: String, rozmiar: Vector2, stan: String = "", cala: 
 		m.shader = _shader_szary()
 		obraz.material = m
 	var kadr: Array = def.get("portret_kadr", [])
+	# cała sylwetka: gdy portret jest poziomym kadrem (np. sama głowa), bierzemy klatkę postaci z gry
+	if cala and tex != null and tex.get_width() > tex.get_height():
+		var klatki := Art.frames(str(def.get("grafika", "")), "idle", "east")
+		if not klatki.is_empty():
+			tex = klatki[0]
+			obraz.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	obraz.draw.connect(func():
 		var r := Rect2(Vector2.ZERO, obraz.size)
 		obraz.draw_rect(r, Color(0.16, 0.07, 0.06))
