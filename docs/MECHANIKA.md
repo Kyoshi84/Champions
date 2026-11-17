@@ -132,4 +132,6 @@ Wzorowana na papierowej karcie WFRP, rozłożona na trzy kolumny (`scripts/scene
   logo i Wyposażenie na sylwetce (sloty jak lokacje trafień z rzutem k100) | Służba, Doświadczenie, Walka, Podsumowanie zdolności.
 - **Strona II:** Historia, Rola w drużynie, Pochodzenie | Umiejętności i talenty z opisami, Specjalizacja.
 - Szczegóły osobiste (rasa, wiek, oczy, znak gwiezdny…) są w `data/heroes.json` → `karta` i można je dowolnie zmieniać.
-- Logo „Carroburg Champions”: `scripts/view/logo.gd` (Cinzel Black + ozdobne skrajne litery Cinzel Decorative, złoty gradient z shadera).
+- Logo „Carroburg Champions” (główne logo gry: menu, karta postaci, ekran startowy): `scripts/view/logo.gd` (Cinzel Black + ozdobne skrajne litery Cinzel Decorative, złoty gradient z shadera).
+
+Gotowe logo jako obraz (ekran startowy, materiały poza grą): `assets/ui/logo/logo.png` (przezroczyste tło, 1157×256).

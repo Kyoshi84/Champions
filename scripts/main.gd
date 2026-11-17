@@ -8,6 +8,8 @@ func _ready() -> void:
 
 func go(ekran: String, params: Dictionary = {}) -> void:
 	get_tree().paused = false
+	# menu i Koszary wypełniają cały ekran przy każdych proporcjach, plansze gry trzymają 16:9
+	get_tree().root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND if ekran in ["menu", "koszary"] else Window.CONTENT_SCALE_ASPECT_KEEP
 	if current != null:
 		current.queue_free()
 		current = null

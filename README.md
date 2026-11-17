@@ -1,4 +1,4 @@
-# Champions of Carroburg
+# Carroburg Champions
 
 Taktyczny auto-battler / idle RPG w świecie Warhammer Fantasy. Godot 4.3, GDScript, ekran 1280×720 (poziomo, Android).
 

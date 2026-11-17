@@ -1,4 +1,4 @@
-# Specyfikacja grafiki poziomów — Champions of Carroburg
+# Specyfikacja grafiki poziomów — Carroburg Champions
 
 Dokument mówi, **co dokładnie narysować, w jakim rozmiarze i pod jaką nazwą zapisać**, żeby gra sama podmieniła
 tymczasowe placeholdery. Wszystkie liczby poniżej są wzięte z kodu i danych gry (`data/levels_art.json`,

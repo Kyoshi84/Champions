@@ -24,21 +24,14 @@ var zywe: Array = []                 # funkcje odświeżane co sekundę (licznik
 var _tresc: Control = null
 var _podpis_zdrowia: String = ""
 var _sek: float = 0.0
-var _stary_aspekt: int = Window.CONTENT_SCALE_ASPECT_KEEP
 
 func _ready() -> void:
 	theme = Gk.theme()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	Audio.play_track("koszary")
-	# Koszary wypełniają cały ekran także na szerszych i węższych proporcjach (reszta gry trzyma 16:9)
-	var okno := get_tree().root
-	_stary_aspekt = okno.content_scale_aspect
-	okno.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
 	get_tree().set_quit_on_go_back(false)
 	_buduj()
 
-func _exit_tree() -> void:
-	get_tree().root.content_scale_aspect = _stary_aspekt
 	get_tree().set_quit_on_go_back(true)
 
 # ---------------------------------------------------------------- nawigacja
