@@ -1,0 +1,29 @@
+{
+  "_opis": "Arena: potyczki 10 na 10. Gracz nie strzela, walczą tylko bohaterowie (Ultimate odpalają się same). Przeciwnicy to drabinka - kolejny odblokowuje się po pokonaniu poprzedniego. sklad: 10 pól jak w formacji gracza (0-4 przedni rząd, 5-9 tylny, tor = pole % 5), \"\" = puste pole. skala_hp / skala_obrazen pozwalają wystawić tę samą drużynę ponownie, ale silniejszą. wkrotce: true = szczebel widoczny, ale wyszarzony (do zaprojektowania). Nagroda pełna za pierwsze zwycięstwo, przy powtórce 'powtorka_mnoznik' koron i bez klejnotów.",
+  "wymagani_bohaterowie": 10,
+  "front_x": 850,
+  "tyl_x": 990,
+  "powtorka_mnoznik": 0.25,
+  "ult_ladowanie_start": 0.5,
+  "przeciwnicy": [
+    {
+      "id": "szczurza_banda",
+      "nazwa": "Szczurza Banda z Kanałów",
+      "opis": "Pięciu szczurów z włóczniami w pierwszym rzędzie, za nimi trzech procarzy i dwóch magów spaczenia. Na arenie nie ma ucieczki - ani dla nich, ani dla was.",
+      "poziom": 1,
+      "sklad": ["szczur", "szczur", "szczur", "szczur", "szczur",
+                "szczur_strzelec", "szczur_mag", "szczur_strzelec", "szczur_mag", "szczur_strzelec"],
+      "skala_hp": 1.0,
+      "skala_obrazen": 1.0,
+      "nagroda_korony": 150,
+      "nagroda_klejnoty": 5,
+      "poziom_grafiki": "piwnice"
+    },
+    {
+      "id": "przeciwnik_2",
+      "nazwa": "???",
+      "opis": "Kolejny przeciwnik jeszcze nie przybył na arenę.",
+      "wkrotce": true
+    }
+  ]
+}

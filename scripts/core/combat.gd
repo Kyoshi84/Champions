@@ -45,7 +45,10 @@ func setup(hero_units: Array, adventure: Dictionary, board_idx: int, difficulty:
 	_skala_obr = float(adventure.get("skala_obrazen", 1.0)) * float(board.get("skala_obrazen", 1.0)) * float(diff.get("obrazenia", 1.0))
 	_kolejka = []
 	_lacznie = 0
-	_zbuduj_kolejke(0.0)
+	if board.has("sklad"):
+		_ustaw_druzyne_przeciwnika()
+	else:
+		_zbuduj_kolejke(0.0)
 	var i := 0
 	for h in heroes:
 		if h.uid == 0:
@@ -53,6 +56,8 @@ func setup(hero_units: Array, adventure: Dictionary, board_idx: int, difficulty:
 			h.uid = _uid
 		h.cd = 1.0 + 0.35 * i
 		h.cd_max = h.cd
+		if adventure.has("ult_ladowanie_start") and not h.ult.is_empty():      # arena: Ultimate nie jest gotowy od pierwszej sekundy
+			h.ult_cd = float(h.ult.get("odnowienie", 60.0)) * (1.0 - float(adventure["ult_ladowanie_start"]))
 		h.cel = null
 		h.statusy = []
 		i += 1
@@ -85,6 +90,8 @@ func _tick(dt: float) -> void:
 		if e.alive:
 			_ruch_wroga(e, dt)
 	_furia(dt)
+	if bool(adv.get("auto_ult", false)):
+		_auto_ult()
 	enemies = enemies.filter(func(e): return e.alive)
 	_sprawdz_koniec()
 
@@ -156,6 +163,47 @@ func _spawn() -> void:
 	# plansze "przetrwaj" i "zbierz łup": napływ nie kończy się nigdy
 	if _kolejka.is_empty() and float(board.get("petla_fal", 0.0)) > 0.0:
 		_zbuduj_kolejke(time + _odstep() * 2.0 - float(board.get("fale", [{}])[0].get("t", 0.0)))
+
+## Arena: cała drużyna przeciwnika stoi od początku w szyku 2x5, lustrzanym do szyku gracza.
+func _ustaw_druzyne_przeciwnika() -> void:
+	var tory: Array = B.get("tory_y", [340, 410, 480, 550, 620])
+	var sklad: Array = board.get("sklad", [])
+	for pole in mini(sklad.size(), Formation.POLA):
+		var id := str(sklad[pole])
+		if id == "" or Data.enemy(id).is_empty():
+			continue
+		var e := Progression.wrog(id, _skala_hp, _skala_obr)
+		_uid += 1
+		e.uid = _uid
+		e.slot = pole
+		e.tor = Formation.tor(pole)
+		e.x = float(Data.arena.get("front_x" if Formation.rzad(pole) == 0 else "tyl_x", 900))
+		e.y = float(tory[e.tor])
+		e.cd = float(e.atak.get("czas", 3.0)) * rng.randf_range(0.4, 0.9)
+		e.cd_max = maxf(e.cd, 0.1)
+		enemies.append(e)
+		events.append({"typ": "spawn", "uid": e.uid})
+		_lacznie += 1
+
+## Arena: bohaterowie sami używają Ultimate, gdy ma to sens (leczenie - gdy ktoś jest ranny, reszta - gdy są wrogowie).
+func _auto_ult() -> void:
+	for h in heroes:
+		if not ult_gotowy(h):
+			continue
+		var sens := false
+		match str(h.ult.get("efekt", "")):
+			"leczenie_druzyny":
+				for o in heroes:
+					if o.alive and o.hp_ulamek() < 0.6:
+						sens = true
+			"tarcza_druzyny":
+				for e in enemies:
+					if e.alive and e.w_kontakcie:
+						sens = true
+			_:
+				sens = enemies.filter(func(e): return e.alive and e.x <= float(B.get("ekran_x", 1260))).size() >= mini(3, enemies.size())
+		if sens:
+			uzyj_ult(h)
 
 func fale_skonczone() -> bool:
 	return _kolejka.is_empty()
@@ -421,7 +469,9 @@ func _zadaj(t: CUnit, dmg: float, rodzaj: String) -> void:
 	t.hp = 0.0
 	t.alive = false
 	events.append({"typ": "smierc", "uid": t.uid, "team": t.team})
-	if t.team == 1:
+	if t.team == 1 and bool(board.get("bez_lupu", false)):
+		zabici += 1
+	elif t.team == 1:
 		zabici += 1
 		lup += 1
 		var z := t.zloto * mnoznik_zlota * float(diff.get("zloto", 1.0))
@@ -444,7 +494,7 @@ func _przelicz_zloto() -> void:
 # ---------------------------------------------------------------- akcje gracza
 ## Strzał z nieba w punkt pola bitwy. Zwraca true, jeśli strzał padł (nie był w odnowieniu).
 func strzal_gracza(px: float, py: float) -> bool:
-	if result != "" or strzal_cd > 0.0:
+	if result != "" or strzal_cd > 0.0 or bool(adv.get("arena", false)):
 		return false
 	var s: Dictionary = Data.balance.get("strzal_gracza", {})
 	strzal_cd = float(s.get("odnowienie", 0.6))
@@ -513,6 +563,8 @@ func opis_celu() -> String:
 			return "Przetrwaj: %d s" % maxi(0, ceili(float(board.get("czas", 30)) - time))
 		"zbierz_lup":
 			return "Zbierz łup: %d/%d" % [mini(lup, int(board.get("ile", 5))), int(board.get("ile", 5))]
+	if board.has("sklad"):
+		return "Pokonaj drużynę przeciwnika (%d)" % _pozostalo()
 	return "Pokonaj wszystkich wrogów (%d)" % _pozostalo()
 
 func _pozostalo() -> int:

@@ -4,12 +4,13 @@ extends RefCounted
 
 static func buduj(k: BarracksScene, c: Control, _p: Dictionary) -> void:
 	var v: VBoxContainer = k.pelny(Gk.vb(12), c)
-	var siatka := GridContainer.new()
-	siatka.columns = 3
-	siatka.add_theme_constant_override("h_separation", 14)
-	siatka.add_theme_constant_override("v_separation", 14)
-	siatka.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	v.add_child(siatka)
+	# dwa rzędy kafli: walka (drużyna, formacja, misje, arena) i reszta (tawerna, sklep, osiągnięcia)
+	var rzad1 := Gk.hb(14)
+	var rzad2 := Gk.hb(14)
+	for r in [rzad1, rzad2]:
+		r.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		v.add_child(r)
+	var siatka := rzad1
 
 	var ranni := 0
 	var polegli := 0
@@ -36,6 +37,17 @@ static func buduj(k: BarracksScene, c: Control, _p: Dictionary) -> void:
 	_kafel(k, siatka, "misje", "zwoj", "Misje", "Ukończone %d z %d" % [ukonczone, Data.adventure_ids().size()],
 		"Następna: %s" % nastepna if nastepna != "" else "", Gk.ZLOTO_J)
 
+	var arena_otw := Game.arena_odblokowana()
+	var nast_arena := ""
+	for op in Data.arena_lista():
+		if Game.arena_status(str(op["id"])) == "dostepny":
+			nast_arena = str(op.get("nazwa", ""))
+			break
+	_kafel(k, siatka, "arena", "arena", "Arena",
+		"Potyczki 10 na 10" if arena_otw else "Bohaterowie: %d z %d" % [Game.state["bohaterowie"].size(), Game.arena_wymagani()],
+		("Następny: " + nast_arena if nast_arena != "" else "Drabinka ukończona") if arena_otw else "Otworzy się przy %d bohaterach" % Game.arena_wymagani(),
+		Gk.ZLOTO_J if arena_otw else Gk.PRZYG, not arena_otw)
+	siatka = rzad2
 	var do_wynajecia := 0
 	for id in Data.hero_ids():
 		if not Game.ma(id) and str(Data.hero(id).get("odblokowanie", {}).get("typ", "")) == "sklep":

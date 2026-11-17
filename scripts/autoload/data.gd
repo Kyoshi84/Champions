@@ -9,6 +9,7 @@ var items: Dictionary = {}
 var music: Dictionary = {}
 var art: Dictionary = {}
 var achievements: Dictionary = {}
+var arena: Dictionary = {}
 
 func _ready() -> void:
 	load_all()
@@ -22,6 +23,7 @@ func load_all() -> void:
 	music = _load("music")
 	art = _load("levels_art")
 	achievements = _load("achievements")
+	arena = _load("arena")
 
 func _load(n: String) -> Dictionary:
 	var path := "res://data/%s.json" % n
@@ -66,3 +68,12 @@ func achievement_list() -> Array:
 
 func lazaret() -> Dictionary:
 	return balance.get("lazaret", {})
+
+func arena_lista() -> Array:
+	return arena.get("przeciwnicy", [])
+
+func arena_przeciwnik(id: String) -> Dictionary:
+	for p in arena_lista():
+		if str(p.get("id", "")) == id:
+			return p
+	return {}

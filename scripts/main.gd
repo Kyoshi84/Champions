@@ -20,10 +20,13 @@ func go(ekran: String, params: Dictionary = {}) -> void:
 		"bitwa":
 			var b := BattleScene.new()
 			b.adv_id = str(params.get("przygoda", "piwnice_carroburga"))
+			b.arena_id = str(params.get("arena", ""))
 			b.trudnosc = str(params.get("trudnosc", "normal"))
 			n = b
 		"koszary":
-			n = BarracksScene.new()
+			var k := BarracksScene.new()
+			k.start = params
+			n = k
 		_:
 			n = MenuScene.new()
 	n.set("main", self)

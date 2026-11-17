@@ -21,10 +21,12 @@ func new_game(zapisz: bool = true) -> void:
 		"magazyn": [],            # id przedmiotów bez właściciela
 		"postep": {},             # id przygody -> {trudność: true}
 		"ranking": [],
-		"osiagniecia": {}         # id -> true (nagroda odebrana)
+		"osiagniecia": {},        # id -> true (nagroda odebrana)
+		"arena": {"formacja": [], "pokonani": [], "rekordy": {}}   # osobny szyk 10 bohaterów, pokonani przeciwnicy, najlepsze czasy
 	}
 	for i in Formation.POLA:
 		state["formacja"].append("")
+		state["arena"]["formacja"].append("")
 	for id in Data.hero_ids():
 		if str(Data.hero(id).get("odblokowanie", {}).get("typ", "")) == "start":
 			_odblokuj(id)
@@ -45,6 +47,11 @@ func load_game() -> bool:
 		state[k] = d[k]
 	while state["formacja"].size() < Formation.POLA:
 		state["formacja"].append("")
+	for k in ["formacja", "pokonani", "rekordy"]:      # starszy zapis bez części danych areny
+		if not state["arena"].has(k):
+			state["arena"][k] = {} if k == "rekordy" else []
+	while state["arena"]["formacja"].size() < Formation.POLA:
+		state["arena"]["formacja"].append("")
 	changed.emit()
 	return true
 
@@ -190,24 +197,31 @@ func miejsca() -> int:
 			n += int(p.get("miejsca_za_ukonczone_przygody", 2))
 	return mini(n, int(p.get("miejsca_max", 10)))
 
-func w_formacji() -> Array:
+## Szyk: "formacja" (kampania, limit miejsc) albo "arena" (osobny szyk 10 bohaterów, bez limitu miejsc).
+func szyk(klucz: String = "formacja") -> Array:
+	return state["arena"]["formacja"] if klucz == "arena" else state["formacja"]
+
+func limit_szyku(klucz: String = "formacja") -> int:
+	return Formation.POLA if klucz == "arena" else miejsca()
+
+func w_formacji(klucz: String = "formacja") -> Array:
 	var out: Array = []
-	for id in state["formacja"]:
+	for id in szyk(klucz):
 		if str(id) != "":
 			out.append(str(id))
 	return out
 
-func pole_bohatera(id: String) -> int:
-	return state["formacja"].find(id)
+func pole_bohatera(id: String, klucz: String = "formacja") -> int:
+	return szyk(klucz).find(id)
 
 ## Ustawia bohatera na polu. Jeśli pole jest zajęte - zamienia miejscami. Zwraca false, gdy brak wolnych miejsc.
-func ustaw(id: String, pole: int) -> bool:
+func ustaw(id: String, pole: int, klucz: String = "formacja") -> bool:
 	if not ma(id) or pole < 0 or pole >= Formation.POLA:
 		return false
-	var f: Array = state["formacja"]
+	var f: Array = szyk(klucz)
 	var stare := f.find(id)
 	var kto := str(f[pole])
-	if stare == -1 and kto == "" and w_formacji().size() >= miejsca():
+	if stare == -1 and kto == "" and w_formacji(klucz).size() >= limit_szyku(klucz):
 		return false
 	if stare != -1:
 		f[stare] = kto
@@ -215,23 +229,25 @@ func ustaw(id: String, pole: int) -> bool:
 	save()
 	return true
 
-func zdejmij(id: String) -> void:
-	var i: int = state["formacja"].find(id)
+func zdejmij(id: String, klucz: String = "formacja") -> void:
+	var f: Array = szyk(klucz)
+	var i: int = f.find(id)
 	if i != -1:
-		state["formacja"][i] = ""
+		f[i] = ""
 		save()
 
-func _auto_formacja() -> void:
+func _auto_formacja(klucz: String = "formacja") -> void:
 	# nowy bohater trafia na pierwsze wolne pole odpowiedniego rzędu (wręcz -> przód, reszta -> tył)
+	var f: Array = szyk(klucz)
 	for id in state["bohaterowie"]:
-		if pole_bohatera(id) != -1 or w_formacji().size() >= miejsca():
+		if f.find(id) != -1 or w_formacji(klucz).size() >= limit_szyku(klucz):
 			continue
 		var wrecz := str(Data.hero(id).get("atak", {}).get("typ", "wrecz")) == "wrecz"
 		var kolej: Array = [2, 1, 3, 0, 4] if wrecz else [7, 6, 8, 5, 9]
 		kolej.append_array([7, 6, 8, 5, 9] if wrecz else [2, 1, 3, 0, 4])
 		for p in kolej:
-			if str(state["formacja"][p]) == "":
-				state["formacja"][p] = id
+			if str(f[p]) == "":
+				f[p] = id
 				break
 
 ## Jednostki bojowe dla przygody (wymuszona drużyna prologu albo formacja gracza).
@@ -258,6 +274,87 @@ func gotowi() -> int:
 	for id in w_formacji():
 		if ma(id) and not polegly(id):
 			n += 1
+	return n
+
+# ---------------------------------------------------------------- arena
+func arena_wymagani() -> int:
+	return int(Data.arena.get("wymagani_bohaterowie", 10))
+
+func arena_odblokowana() -> bool:
+	return state["bohaterowie"].size() >= arena_wymagani()
+
+func arena_pokonany(id: String) -> bool:
+	return state["arena"]["pokonani"].has(id)
+
+## Szczebel drabinki: "pokonany" | "dostepny" | "zablokowany" | "wkrotce".
+func arena_status(id: String) -> String:
+	var lista := Data.arena_lista()
+	for i in lista.size():
+		var p: Dictionary = lista[i]
+		if str(p.get("id", "")) != id:
+			continue
+		if bool(p.get("wkrotce", false)):
+			return "wkrotce"
+		if arena_pokonany(id):
+			return "pokonany"
+		if i == 0 or arena_pokonany(str(lista[i - 1].get("id", ""))):
+			return "dostepny"
+		return "zablokowany"
+	return "zablokowany"
+
+func arena_moze_walczyc(id: String) -> bool:
+	return arena_odblokowana() and arena_status(id) in ["dostepny", "pokonany"] and not w_formacji("arena").is_empty()
+
+## Uzupełnia szyk areny: najpierw układ z kampanii, potem pozostali bohaterowie według roli.
+func arena_auto() -> void:
+	var f: Array = szyk("arena")
+	if w_formacji("arena").is_empty():
+		for p in Formation.POLA:
+			f[p] = str(state["formacja"][p])
+	_auto_formacja("arena")
+	save()
+
+## Jednostki na arenę: szyk areny, pełne zdrowie (arena nie rani na stałe i nie wysyła do lazaretu).
+func arena_druzyna() -> Array:
+	var out: Array = []
+	var f: Array = szyk("arena")
+	for pole in Formation.POLA:
+		var id := str(f[pole])
+		if id != "" and ma(id):
+			out.append(Progression.bohater(id, poziom(id), spec(id), ekwipunek(id), pole))
+	return out
+
+## Przeciwnik areny jako przygoda z jedną planszą - silnik walki liczy ją jak każdą inną.
+func arena_przygoda(id: String) -> Dictionary:
+	var p := Data.arena_przeciwnik(id)
+	return {
+		"nazwa": "Arena: " + str(p.get("nazwa", id)),
+		"arena": true,
+		"auto_ult": true,
+		"ult_ladowanie_start": float(Data.arena.get("ult_ladowanie_start", 0.5)),
+		"poziom_grafiki": str(p.get("poziom_grafiki", "piwnice")),
+		"muzyka": "walka",
+		"skala_hp": float(p.get("skala_hp", 1.0)),
+		"skala_obrazen": float(p.get("skala_obrazen", 1.0)),
+		"plansze": [{"cel": "pokonaj_wszystkich", "sklad": p.get("sklad", []), "bez_lupu": true,
+			"opis": "Arena: %s. Walczą tylko bohaterowie - umiejętności i Ultimate działają same." % str(p.get("nazwa", id))}]}
+
+## Zwycięstwo na arenie: pełna nagroda za pierwszy raz, przy powtórce część koron. Zapisuje rekord czasu.
+func arena_wygrana(id: String, czas: float) -> Dictionary:
+	var p := Data.arena_przeciwnik(id)
+	var pierwszy := not arena_pokonany(id)
+	var n := {"pierwszy_raz": pierwszy, "korony": 0, "klejnoty": 0, "rekord": false}
+	n["korony"] = roundi(float(p.get("nagroda_korony", 0)) * (1.0 if pierwszy else float(Data.arena.get("powtorka_mnoznik", 0.25))))
+	n["klejnoty"] = int(p.get("nagroda_klejnoty", 0)) if pierwszy else 0
+	if pierwszy:
+		state["arena"]["pokonani"].append(id)
+	var rek: Dictionary = state["arena"]["rekordy"]
+	if not rek.has(id) or czas < float(rek[id]):
+		rek[id] = snappedf(czas, 0.1)
+		n["rekord"] = true
+	state["korony"] = int(state["korony"]) + int(n["korony"])
+	state["klejnoty"] = int(state["klejnoty"]) + int(n["klejnoty"])
+	save()
 	return n
 
 # ---------------------------------------------------------------- zdrowie i lazaret

@@ -139,6 +139,13 @@ func _draw() -> void:
 				var kat := -PI * 0.5 + float(i) * PI / 5.0
 				a.append(_p(0.5 + cos(kat) * r, 0.52 + sin(kat) * r))
 			draw_colored_polygon(a, kolor)
+		"arena":           # łuk amfiteatru z arkadami
+			_w([0.06, 0.88, 0.06, 0.46, 0.2, 0.3, 0.38, 0.2, 0.62, 0.2, 0.8, 0.3, 0.94, 0.46, 0.94, 0.88])
+			for i in 4:
+				var x := 0.17 + i * 0.2
+				_w([x, 0.86, x, 0.62, x + 0.06, 0.54, x + 0.12, 0.62, x + 0.12, 0.86], tlo)
+			for i in 3:
+				_w([0.27 + i * 0.2, 0.44, 0.27 + i * 0.2, 0.36, 0.33 + i * 0.2, 0.32, 0.37 + i * 0.2, 0.36, 0.37 + i * 0.2, 0.44], tlo)
 		"menu":
 			for i in 3:
 				_l([0.14, 0.26 + i * 0.24, 0.86, 0.26 + i * 0.24], 0.1)

@@ -1,13 +1,15 @@
 class_name KFormacja
 extends RefCounted
 ## 6. Formacja drużyny: ławka po lewej, szyk 2x5 pośrodku (przeciąganie albo dotknięcia), buffy pozycyjne po prawej.
+## p.tryb = "arena" ustawia osobny szyk areny (10 miejsc, bez limitu z kampanii).
 
 static func buduj(k: BarracksScene, c: Control, p: Dictionary) -> void:
+	var kl := str(p.get("tryb", "formacja"))
 	var sel := str(p.get("sel", ""))
 	if sel != "" and not Game.ma(sel):
 		sel = ""
-	var units := _jednostki()
-	var sel_pole := Game.pole_bohatera(sel) if sel != "" else -1
+	var units := _jednostki(kl)
+	var sel_pole := Game.pole_bohatera(sel, kl) if sel != "" else -1
 	var sel_unit: CUnit = null
 	for u in units:
 		if u.id == sel:
@@ -38,7 +40,7 @@ static func buduj(k: BarracksScene, c: Control, p: Dictionary) -> void:
 		var n := Gk.gruby(str(Data.hero(id)["imie"]), 17, Gk.ZLOTO_J)
 		n.clip_text = true
 		rv.add_child(n)
-		rv.add_child(Gk.tekst("poz. %d  ·  %s" % [Game.poziom(id), KW.miejsce(id)], 14, Gk.ZLOTO if Game.pole_bohatera(id) != -1 else Gk.PRZYG, false))
+		rv.add_child(Gk.tekst("poz. %d  ·  %s" % [Game.poziom(id), _miejsce(id, kl)], 14, Gk.ZLOTO if Game.pole_bohatera(id, kl) != -1 else Gk.PRZYG, false))
 		rh.add_child(rv)
 		Gk.do_karty(karta, rh)
 		lista.add_child(karta[0])
@@ -49,7 +51,7 @@ static func buduj(k: BarracksScene, c: Control, p: Dictionary) -> void:
 	srodek.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var sv := Gk.vb(8)
 	srodek.add_child(sv)
-	sv.add_child(Gk.naglowek("Szyk  —  %d z %d miejsc" % [Game.w_formacji().size(), Game.miejsca()], 20))
+	sv.add_child(Gk.naglowek("%s  —  %d z %d miejsc" % ["Drużyna areny" if kl == "arena" else "Szyk", Game.w_formacji(kl).size(), Game.limit_szyku(kl)], 20))
 	var nag := Gk.hb(10)
 	for t in ["TYLNY RZĄD", "PRZEDNI RZĄD  →  wrogowie"]:
 		var l := Gk.gruby(t, 14, Gk.PRZYG)
@@ -65,7 +67,7 @@ static func buduj(k: BarracksScene, c: Control, p: Dictionary) -> void:
 	sv.add_child(siatka)
 	for tor in Formation.RZAD:
 		for pole in [Formation.RZAD + tor, tor]:        # tylny rząd po lewej, przedni po prawej
-			var id := str(Game.state["formacja"][pole])
+			var id := str(Game.szyk(kl)[pole])
 			var w_aurze := false
 			if sel_unit != null and pole != sel_pole:
 				for s in sel_unit.skills_of("aura"):
@@ -88,16 +90,19 @@ static func buduj(k: BarracksScene, c: Control, p: Dictionary) -> void:
 				func(_poz, d): _upusc(k, p, str(d["bohater"]), pole))
 			var rh := Gk.hb(10)
 			if id != "" and Game.ma(id):
-				rh.add_child(Gk.portret(id, Vector2(54, 54), Gk.stan_bohatera(id)))
+				rh.add_child(Gk.portret(id, Vector2(54, 54), "" if kl == "arena" else Gk.stan_bohatera(id)))
 				var rv := Gk.vb(2)
 				rv.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 				rv.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 				var n := Gk.gruby("%s  ·  poz. %d" % [str(Data.hero(id)["imie"]), Game.poziom(id)], 16, Gk.PRZYG if Game.polegly(id) else Gk.ZLOTO_J)
 				n.clip_text = true
 				rv.add_child(n)
-				var pasek := Gk.pasek_hp(id, 15.0)
-				rv.add_child(pasek)
-				k.zywe.append(func(): pasek.queue_redraw())
+				if kl == "arena":        # na arenę zawsze wychodzi się z pełnym zdrowiem
+					rv.add_child(Gk.tekst(", ".join(Data.hero(id).get("role", [])), 14, Gk.PRZYG, false))
+				else:
+					var pasek := Gk.pasek_hp(id, 15.0)
+					rv.add_child(pasek)
+					k.zywe.append(func(): pasek.queue_redraw())
 				rh.add_child(rv)
 			else:
 				var pusty := Gk.tekst("wolne pole" + ("  ·  w zasięgu aury" if w_aurze else ""), 16, Gk.ZIELEN if w_aurze else Color(0.45, 0.4, 0.35), false)
@@ -140,18 +145,24 @@ static func buduj(k: BarracksScene, c: Control, p: Dictionary) -> void:
 				pv.add_child(Gk.tekst("%s: %s\nzasięg: %s" % [str(s.get("nazwa", "")), ", ".join(ef2), Formation.nazwa_zasiegu(str(s.get("zasieg", "")))], 16, Gk.TEKST))
 			pv.add_child(Gk.tekst("Zielone pola są w zasięgu jego aury.", 14, Gk.PRZYG))
 			var zd := Gk.przycisk("Zdejmij z szyku", func():
-				Game.zdejmij(sel)
+				Game.zdejmij(sel, kl)
 				k.odswiez(), false, 0.0, 46.0)
 			zd.name = "btn_zdejmij_z_szyku"
 			pv.add_child(zd)
-		if Game.polegly(sel):
+		if Game.polegly(sel) and kl != "arena":
 			pv.add_child(Gk.tekst("Leży w lazarecie — nie wyruszy na misję, dopóki nie wróci.", 16, Gk.SZKARLAT_J))
 	h.add_child(prawa)
 
-static func _jednostki() -> Array:
+static func _miejsce(id: String, kl: String) -> String:
+	var pole := Game.pole_bohatera(id, kl)
+	if pole == -1:
+		return "Rezerwa"
+	return "Przedni rząd" if Formation.rzad(pole) == 0 else "Tylny rząd"
+
+static func _jednostki(kl: String) -> Array:
 	var out: Array = []
 	for pole in Formation.POLA:
-		var id := str(Game.state["formacja"][pole])
+		var id := str(Game.szyk(kl)[pole])
 		if id != "" and Game.ma(id):
 			out.append(Progression.bohater(id, Game.poziom(id), Game.spec(id), Game.ekwipunek(id), pole))
 	Formation.przelicz_aury(out)
@@ -161,21 +172,25 @@ static func _ciagnij(id: String, zrodlo: Control):
 	zrodlo.set_drag_preview(Gk.tytul(str(Data.hero(id).get("imie", id)), 22))
 	return {"bohater": id}
 
-static func _brak_miejsc() -> String:
+static func _brak_miejsc(kl: String = "formacja") -> String:
+	if kl == "arena":
+		return "Drużyna areny jest pełna (10). Zdejmij kogoś, żeby zrobić miejsce."
 	return "Brak wolnych miejsc w drużynie (%d). Ukończ przygodę, żeby odblokować kolejne." % Game.miejsca()
 
 static func _dotknij(k: BarracksScene, p: Dictionary, pole: int) -> void:
+	var kl := str(p.get("tryb", "formacja"))
 	var sel := str(p.get("sel", ""))
-	var kto := str(Game.state["formacja"][pole])
+	var kto := str(Game.szyk(kl)[pole])
 	var info := ""
 	if sel == "" or not Game.ma(sel):
 		p["sel"] = kto
 	elif kto == sel:
-		Game.zdejmij(sel)
-	elif not Game.ustaw(sel, pole):
-		info = _brak_miejsc()
+		Game.zdejmij(sel, kl)
+	elif not Game.ustaw(sel, pole, kl):
+		info = _brak_miejsc(kl)
 	k.odswiez(info)
 
 static func _upusc(k: BarracksScene, p: Dictionary, id: String, pole: int) -> void:
+	var kl := str(p.get("tryb", "formacja"))
 	p["sel"] = id
-	k.odswiez("" if Game.ustaw(id, pole) else _brak_miejsc())
+	k.odswiez("" if Game.ustaw(id, pole, kl) else _brak_miejsc(kl))

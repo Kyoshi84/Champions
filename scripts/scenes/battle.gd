@@ -5,6 +5,7 @@ extends Node2D
 
 var main: Node
 var adv_id: String = "piwnice_carroburga"
+var arena_id: String = ""         # niepusty = potyczka na arenie (bez strzału gracza, Ultimate same, bez lazaretu)
 var trudnosc: String = "normal"
 var adv: Dictionary = {}
 var diff: Dictionary = {}
@@ -44,8 +45,8 @@ var rng := RandomNumberGenerator.new()
 
 func _ready() -> void:
 	rng.randomize()
-	adv = Data.adventure(adv_id)
-	diff = Data.difficulty(trudnosc)
+	adv = Game.arena_przygoda(arena_id) if arena_id != "" else Data.adventure(adv_id)
+	diff = Data.difficulty("normal" if arena_id != "" else trudnosc)
 	bg = LevelBg.new()
 	add_child(bg)
 	bg.setup(str(adv.get("poziom_grafiki", "hufduhof")))
@@ -56,7 +57,7 @@ func _ready() -> void:
 	world = Node2D.new()
 	world.y_sort_enabled = true
 	add_child(world)
-	heroes = Game.druzyna(adv)
+	heroes = Game.arena_druzyna() if arena_id != "" else Game.druzyna(adv)
 	for h in heroes:
 		h.uid = 100 + h.slot
 		var a := Actor.new()
@@ -70,8 +71,15 @@ func _ready() -> void:
 		podloze.add_child(k)
 		kregi[h.uid] = k
 	_buduj_hud()
+	if arena_id != "":           # na arenie nie ma monet - licznik koron zbędny
+		for c in hud.get_children():
+			if c == lbl_korony or (c is Ikona and c.nazwa == "korona"):
+				c.visible = false
 	if heroes.is_empty():
 		faza = "pauza"
+		if arena_id != "":
+			_nakladka("Brak drużyny", "Ustaw drużynę areny.", [["Arena", func(): main.go("koszary", {"ekran": "arena"})]])
+			return
 		_nakladka("Brak drużyny", "Ustaw w formacji przynajmniej jednego zdrowego bohatera.", [["Koszary", func(): main.go("koszary")]])
 		return
 	_start(0)
@@ -137,7 +145,7 @@ func _process(delta: float) -> void:
 				_koniec_planszy()
 
 func _unhandled_input(ev: InputEvent) -> void:
-	if faza != "walka":
+	if faza != "walka" or arena_id != "":     # na arenie gracz nie strzela
 		return
 	if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
 		var pos: Vector2 = get_viewport().get_canvas_transform().affine_inverse() * ev.position
@@ -148,6 +156,9 @@ func _koniec_planszy() -> void:
 	_zdarzenia()
 	var b: Dictionary = sim.board
 	var ostatnia: bool = plansza >= adv.get("plansze", []).size() - 1
+	if arena_id != "":
+		_koniec_areny()
+		return
 	if sim.result == "wygrana":
 		_zebrane += sim.zloto
 		Game.dodaj_korony(sim.zloto)
@@ -194,6 +205,30 @@ func _koniec_planszy() -> void:
 			main.go("koszary")])
 		powod += "\nWzmocnij bohaterów, zmień formację albo dobierz inny skład."
 	_nakladka("Porażka", powod, przyciski)
+
+func _koniec_areny() -> void:
+	var op := Data.arena_przeciwnik(arena_id)
+	var do_areny := func(): main.go("koszary", {"ekran": "arena"})
+	if sim.result == "wygrana":
+		Audio.play("levelup")
+		var n := Game.arena_wygrana(arena_id, sim.time)
+		var opis := "%s pokonana w %.1f s%s" % [str(op.get("nazwa", "")), sim.time, "  —  nowy rekord!" if bool(n["rekord"]) else ""]
+		opis += "\nNagroda: %d koron" % int(n["korony"])
+		if int(n["klejnoty"]) > 0:
+			opis += ", klejnoty +%d" % int(n["klejnoty"])
+		if bool(n["pierwszy_raz"]):
+			var lista := Data.arena_lista()
+			var i := lista.find(op)
+			if i >= 0 and i + 1 < lista.size() and not bool(lista[i + 1].get("wkrotce", false)):
+				opis += "\nOdblokowano kolejny szczebel drabinki."
+			else:
+				opis += "\nKolejny przeciwnik jeszcze nie przybył na arenę."
+		_nakladka("Zwycięstwo na arenie!", opis, [["Do areny", do_areny]])
+		return
+	Audio.play("death")
+	_nakladka("Porażka na arenie", "Cała drużyna padła. Arena nie rani na stałe — nikt nie trafia do lazaretu.\nZmień skład albo ustawienie drużyny areny, potrenuj bohaterów i wróć.", [
+		["Spróbuj ponownie", func(): main.go("bitwa", {"arena": arena_id})],
+		["Do areny", do_areny]])
 
 func _koniec_prologu() -> void:
 	Game.ukoncz_prolog()
@@ -365,7 +400,11 @@ func _buduj_hud() -> void:
 	btn_tempo = UiKit.button("Tempo x1", _zmien_tempo, 130.0, 44.0)
 	btn_tempo.position = Vector2(1000, 664)
 	hud.add_child(btn_tempo)
-	if not bool(adv.get("prolog", false)):
+	if arena_id != "":
+		var wa := UiKit.button("Poddaj się", func(): main.go("koszary", {"ekran": "arena"}), 130.0, 44.0)
+		wa.position = Vector2(1138, 664)
+		hud.add_child(wa)
+	elif not bool(adv.get("prolog", false)):
 		var w := UiKit.button("Koszary", func():
 			if sim != null:
 				Game.zapisz_zdrowie(heroes)
@@ -405,7 +444,7 @@ func _buduj_hud() -> void:
 	hb.add_theme_constant_override("separation", 10)
 	hud.add_child(hb)
 	for h in heroes:
-		if h.ult.is_empty():
+		if h.ult.is_empty() or bool(adv.get("auto_ult", false)):      # na arenie Ultimate odpalają się same
 			continue
 		var b := UiKit.button("", func(): sim.uzyj_ult(h), 230.0, 56.0)
 		b.add_theme_font_size_override("font_size", 18)

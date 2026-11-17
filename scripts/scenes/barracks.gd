@@ -10,14 +10,17 @@ extends Control
 ##      ├─ Misje ── Szczegóły misji (trudność, nagrody, rekord Hardcore) ── start
 ##      ├─ Tawerna „Złoty Prosiak” ── Najemnik ── rekrutacja
 ##      ├─ Sklep (zamknięty)
-##      └─ Osiągnięcia
+##      ├─ Osiągnięcia
+##      └─ Arena ── Drużyna areny (osobny szyk 10 bohaterów) ── potyczka
 
 const EKRANY := {
 	"hub": "Koszary Szkarłatnej Gwardii", "druzyna": "Drużyna", "bohater": "Bohater", "rozwoj": "Trening i umiejętności",
 	"ekwipunek": "Ekwipunek", "formacja": "Formacja drużyny", "misje": "Misje i kampanie", "misja": "Szczegóły misji",
-	"tawerna": "Tawerna „Złoty Prosiak”", "najemnik": "Najemnik", "sklep": "Sklep", "osiagniecia": "Osiągnięcia"}
+	"tawerna": "Tawerna „Złoty Prosiak”", "najemnik": "Najemnik", "sklep": "Sklep", "osiagniecia": "Osiągnięcia",
+	"arena": "Arena", "formacja_areny": "Drużyna areny"}
 
 var main: Node
+var start: Dictionary = {}           # {"ekran": nazwa} - od razu otwórz ten ekran nad Hubem (np. powrót z areny)
 var stos: Array = [["hub", {}]]      # [nazwa ekranu, parametry]
 var komunikat: String = ""           # jednorazowa informacja pokazywana na bieżącym ekranie
 var zywe: Array = []                 # funkcje odświeżane co sekundę (liczniki lazaretu, paski zdrowia)
@@ -30,6 +33,9 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	Audio.play_track("koszary")
 	get_tree().set_quit_on_go_back(false)
+	var e := str(start.get("ekran", ""))
+	if EKRANY.has(e) and e != "hub":
+		stos.append([e, start.get("parametry", {})])
 	_buduj()
 
 	get_tree().set_quit_on_go_back(true)
@@ -134,7 +140,8 @@ func _buduj() -> void:
 		"bohater": KBohater.buduj(self, _tresc, p)
 		"rozwoj": KRozwoj.buduj(self, _tresc, p)
 		"ekwipunek": KEkwipunek.buduj(self, _tresc, p)
-		"formacja": KFormacja.buduj(self, _tresc, p)
+		"formacja", "formacja_areny": KFormacja.buduj(self, _tresc, p)
+		"arena": KArena.buduj(self, _tresc, p)
 		"misje": KMisje.buduj(self, _tresc, p)
 		"misja": KMisja.buduj(self, _tresc, p)
 		"tawerna": KTawerna.buduj(self, _tresc, p)

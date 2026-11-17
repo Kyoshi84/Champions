@@ -135,3 +135,17 @@ Wzorowana na papierowej karcie WFRP, rozłożona na trzy kolumny (`scripts/scene
 - Logo „Carroburg Champions” (główne logo gry: menu, karta postaci, ekran startowy): `scripts/view/logo.gd` (Cinzel Black + ozdobne skrajne litery Cinzel Decorative, złoty gradient z shadera).
 
 Gotowe logo jako obraz (ekran startowy, materiały poza grą): `assets/ui/logo/logo.png` (przezroczyste tło, 1157×256).
+
+## 14. Arena (`data/arena.json`, `scripts/scenes/koszary/arena.gd`)
+
+- Otwiera się, gdy w Gwardii jest co najmniej `wymagani_bohaterowie` (10) bohaterów. Wcześniej ekran jest widoczny, ale walka zablokowana.
+- Potyczka 10 na 10: gracz nie strzela; walczą tylko bohaterowie. Aury, leczenie i ataki działają jak w kampanii,
+  a Ultimate odpalają się same (zaczynają naładowane w `ult_ladowanie_start`, domyślnie w połowie).
+- Drużyna areny to osobny szyk 10 miejsc, niezależny od szyku kampanii i bez limitu miejsc. Pierwsze wejście układa go z szyku kampanii.
+- Arena nie rani na stałe: wszyscy startują z pełnym HP, nikt nie trafia do lazaretu. Z wrogów nie wypadają monety - nagroda jest za zwycięstwo.
+- Drabinka: przeciwnicy w kolejności z pliku, kolejny otwiera się po pokonaniu poprzedniego. `wkrotce: true` = szczebel widoczny, ale wyszarzony.
+  Ta sama drużyna może wrócić wyżej z `skala_hp` / `skala_obrazen` i wyższym `poziom`.
+- Skład przeciwnika: 10 pól jak w formacji gracza (0-4 przedni rząd, 5-9 tylny). Wrogowie stoją od początku w szyku po prawej.
+- Uwaga taktyczna: bohaterowie wręcz sięgają tylko wrogów, którzy podejdą. Strzelców i magów w tylnym rzędzie przeciwnika
+  pokonają tylko strzelcy i magowie - drużyna z samych wojowników przegra.
+- Nagroda pełna za pierwsze zwycięstwo, przy powtórce `powtorka_mnoznik` koron i bez klejnotów. Zapisuje się najlepszy czas.
