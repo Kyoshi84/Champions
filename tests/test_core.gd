@@ -2,32 +2,63 @@ extends GutTest
 ## Rdzeń mechaniki: zasady WFRP, formacja, progresja, dane.
 
 func test_wfrp_cechy_maja_wplyw():
-	var a := {"WW": 40, "US": 40, "K": 40, "Odp": 30, "Zr": 30, "Int": 40, "SW": 30, "Zyw": 10, "Sz": 4}
+	var a := {"WW": 40, "US": 40, "K": 40, "Odp": 30, "Zr": 30, "Int": 40, "SW": 30, "Op": 30, "CP": 30, "Ogd": 30, "Zyw": 10, "Sz": 4, "A": 1}
 	var lepszy := a.duplicate()
 	lepszy["WW"] = 60
-	assert_gt(Wfrp.szansa_trafienia("wrecz", lepszy, a), Wfrp.szansa_trafienia("wrecz", a, a), "WW zwiększa celność wręcz")
+	assert_gt(Wfrp.szansa_krytyka("wrecz", lepszy), Wfrp.szansa_krytyka("wrecz", a), "WW zwiększa szansę krytyka wręcz")
+	assert_almost_eq(Wfrp.szansa_krytyka("wrecz", lepszy), 0.2, 0.001, "krytyk = WW/3 %")
 	lepszy = a.duplicate(); lepszy["US"] = 60
-	assert_gt(Wfrp.szansa_trafienia("dystans", lepszy, a), Wfrp.szansa_trafienia("dystans", a, a), "US zwiększa celność strzału")
+	assert_gt(Wfrp.szansa_krytyka("dystans", lepszy), Wfrp.szansa_krytyka("dystans", a), "US zwiększa szansę krytyka z dystansu")
+	lepszy = a.duplicate(); lepszy["Op"] = 60
+	assert_gt(Wfrp.szansa_krytyka("magia", lepszy), Wfrp.szansa_krytyka("magia", a), "Op zwiększa szansę krytyka czarem")
+	lepszy = a.duplicate(); lepszy["WW"] = 300
+	assert_almost_eq(Wfrp.szansa_krytyka("wrecz", lepszy), 0.5, 0.001, "szansa krytyka najwyżej 50%")
+	lepszy = a.duplicate(); lepszy["Zr"] = 60
+	assert_almost_eq(Wfrp.sila_krytyka(lepszy), 2.1, 0.001, "Zr: krytyk ×1,5 + Zr/100")
+	assert_gt(Wfrp.obrazenia("wrecz", 5, lepszy, a, 0, 1, true), Wfrp.obrazenia("wrecz", 5, a, a, 0, 1, true), "Zr wzmacnia krytyk")
+	assert_gt(Wfrp.obrazenia("wrecz", 5, a, a, 0, 1, true), Wfrp.obrazenia("wrecz", 5, a, a, 0, 1), "krytyk mocniejszy od zwykłego ciosu")
 	lepszy = a.duplicate(); lepszy["K"] = 60
-	assert_gt(Wfrp.obrazenia("wrecz", 5, lepszy, a, 0, 1), Wfrp.obrazenia("wrecz", 5, a, a, 0, 1), "K zwiększa obrażenia")
+	assert_gt(Wfrp.obrazenia("wrecz", 5, lepszy, a, 0, 1), Wfrp.obrazenia("wrecz", 5, a, a, 0, 1), "K zwiększa obrażenia wręcz")
+	assert_gt(Wfrp.obrazenia("dystans", 5, lepszy, a, 0, 1), Wfrp.obrazenia("dystans", 5, a, a, 0, 1), "K zwiększa obrażenia z dystansu")
 	lepszy = a.duplicate(); lepszy["Odp"] = 60
 	assert_lt(Wfrp.obrazenia("wrecz", 5, a, lepszy, 0, 1), Wfrp.obrazenia("wrecz", 5, a, a, 0, 1), "Odp zmniejsza obrażenia")
-	assert_lt(Wfrp.obrazenia("wrecz", 5, a, a, 2, 1), Wfrp.obrazenia("wrecz", 5, a, a, 0, 1), "pancerz zmniejsza obrażenia")
-	assert_eq(Wfrp.obrazenia("magia", 5, a, a, 5, 1), Wfrp.obrazenia("magia", 5, a, a, 0, 1), "magia omija pancerz")
+	assert_lt(Wfrp.obrazenia("wrecz", 5, a, a, 2, 1), Wfrp.obrazenia("wrecz", 5, a, a, 0, 1), "zbroja zmniejsza obrażenia")
+	assert_gt(Wfrp.obrazenia("wrecz", 5, a, a, 100, 1), 0.1, "pancerz nigdy nie zatrzymuje wszystkiego")
+	assert_almost_eq(Wfrp.redukcja(10.0), 0.5, 0.001, "pancerz 10 zatrzymuje połowę")
+	assert_eq(Wfrp.obrazenia("magia", 5, a, a, 5, 1), Wfrp.obrazenia("magia", 5, a, a, 0, 1), "czar omija pancerz")
+	assert_almost_eq(Wfrp.obrazenia("magia", 5, a, a, 0, 1), 5.0 * (1.0 + 10.0 / 50.0), 0.001, "czar: moc × (1 + (Int − SW)/50)")
 	lepszy = a.duplicate(); lepszy["SW"] = 80
-	assert_lt(Wfrp.obrazenia("magia", 5, a, lepszy, 0, 1), Wfrp.obrazenia("magia", 5, a, a, 0, 1), "SW chroni przed magią")
+	assert_lt(Wfrp.obrazenia("magia", 5, a, lepszy, 0, 1), Wfrp.obrazenia("magia", 5, a, a, 0, 1), "SW chroni przed czarami")
+	lepszy["SW"] = 500
+	assert_almost_eq(Wfrp.obrazenia("magia", 5, a, lepszy, 0, 1), 5.0 * 0.3, 0.001, "czar nie spada poniżej 30% mocy")
 	assert_lt(Wfrp.czas_ogluszenia(2.0, lepszy, 0), Wfrp.czas_ogluszenia(2.0, a, 0), "SW skraca ogłuszenie")
-	lepszy = a.duplicate(); lepszy["Sz"] = 6
-	assert_lt(Wfrp.czas_ataku(5.0, lepszy), Wfrp.czas_ataku(5.0, a), "Sz skraca czas ataku")
-	assert_almost_eq(Wfrp.czas_ataku(5.0, a), 5.0, 0.001, "bazowy atak co 5 s")
+	lepszy = a.duplicate(); lepszy["Sz"] = 5
+	assert_almost_eq(Wfrp.czas_ataku(5.0, lepszy), 4.0, 0.001, "cykl = czas broni × 4 / Sz")
+	assert_almost_eq(Wfrp.czas_ataku(5.0, a), 5.0, 0.001, "Sz 4 bije w tempie broni")
+	lepszy = a.duplicate(); lepszy["A"] = 3
+	assert_eq(Wfrp.ataki(lepszy), 3, "A = liczba ciosów w cyklu")
 	lepszy = a.duplicate(); lepszy["Zyw"] = 20
 	assert_gt(Wfrp.max_hp(lepszy), Wfrp.max_hp(a), "Żyw daje HP")
-	lepszy = a.duplicate(); lepszy["Zr"] = 60
-	assert_gt(Wfrp.unik(lepszy), Wfrp.unik(a), "Zr daje unik")
 	lepszy = a.duplicate(); lepszy["Int"] = 60
 	assert_gt(Wfrp.leczenie(5, lepszy), Wfrp.leczenie(5, a), "Int wzmacnia leczenie")
 	lepszy = a.duplicate(); lepszy["Ogd"] = 60
-	assert_gt(Wfrp.premia_zlota(lepszy), Wfrp.premia_zlota(a), "Ogd daje złoto")
+	assert_almost_eq(Wfrp.mnoznik_ogd(lepszy), 2.0, 0.001, "Ogd 60 podwaja pasywki złota")
+	lepszy = a.duplicate(); lepszy["CP"] = 40
+	assert_eq(Wfrp.zasieg_cp("sasiednie", a), "sasiednie")
+	assert_eq(Wfrp.zasieg_cp("sasiednie", lepszy), "sasiednie_skos", "CP 35+ dodaje skosy")
+	lepszy["CP"] = 55
+	assert_eq(Wfrp.zasieg_cp("sasiednie", lepszy), "zasieg_2", "CP 50+ sięga dwa pola")
+	assert_eq(Wfrp.zasieg_cp("kolumna", lepszy), "kolumna", "aury o stałym kształcie bez zmian")
+	assert_gt(Wfrp.promien_cp(100.0, lepszy), Wfrp.promien_cp(100.0, a), "CP poszerza obszar ataku")
+
+func test_aura_z_cp_obejmuje_skosy():
+	var ivo := Progression.bohater("ivo", 12, "", {}, 1)       # Przykład Gwardii (sąsiednie), CP Ivo 45+
+	var skos := Progression.bohater("modraszka", 1, "", {}, 7) # pole 7 jest po skosie od pola 1
+	Formation.przelicz_aury([ivo, skos])
+	assert_gt(float(skos.aury.get("obrazenia", 0.0)), 0.0, "aura dowódcy z wysokim CP sięga po skosie")
+	ivo.cechy["CP"] = 20
+	Formation.przelicz_aury([ivo, skos])
+	assert_eq(float(skos.aury.get("obrazenia", 0.0)), 0.0, "z niskim CP tylko sąsiednie pola")
 
 func test_formacja_zasiegi():
 	# pola 0-4 przód, 5-9 tył; 2 i 7 w tym samym torze

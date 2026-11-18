@@ -3,25 +3,36 @@
   "walka": {
     "tick": 0.1,
     "hp_na_zyw": 10.0,
-    "szansa_bazowa_wrecz": 0.55,
-    "szansa_bazowa_dystans": 0.35,
-    "szansa_bazowa_magia": 0.6,
-    "min_szansa": 0.2,
-    "max_szansa": 0.95,
-    "unik_dzielnik": 500.0,
     "sz_bazowa": 4.0,
-    "sz_krok": 0.06,
     "min_czas_ataku": 0.8,
-    "odpornosc_magii_dzielnik": 20.0,
     "linia_frontu_x": 430,
     "linia_tylu_x": 290,
-    "tory_y": [340, 410, 480, 550, 620],
+    "tory_y": [
+      340,
+      410,
+      480,
+      550,
+      620
+    ],
     "spawn_x": 1340,
     "naplyw_odstep": 1.8,
     "ekran_x": 1260,
     "kontakt_wrecz": 78,
     "leczenie_miedzy_planszami": 0.3,
-    "odpornosc_na_ogluszenie_po": 1.5
+    "odpornosc_na_ogluszenie_po": 1.5,
+    "pancerz_stala": 10.0,
+    "krytyk_dzielnik": 3.0,
+    "krytyk_max": 0.5,
+    "krytyk_baza": 1.5,
+    "magia_dzielnik": 50.0,
+    "magia_min": 0.3,
+    "magia_max": 2.5,
+    "ogd_dzielnik": 30.0,
+    "cp_progi": [
+      35,
+      50
+    ],
+    "cp_promien_baza": 0.6
   },
   "strzal_gracza": {
     "_opis": "Kliknięcie/tapnięcie w pole bitwy: pocisk z nieba. Ma pomagać, nie zastępować drużyny.",
@@ -48,7 +59,7 @@
   },
   "lazaret": {
     "_opis": "Zdrowie między misjami. Ranni odzyskują 'regeneracja_na_min' maks. HP na minutę (także gdy gra jest wyłączona). Poległy wraca po 'czas_poleglego_s' z 'hp_po_powrocie' HP. Koszty natychmiastowego leczenia mnożone przez poziom bohatera.",
-    "regeneracja_na_min": 0.10,
+    "regeneracja_na_min": 0.1,
     "czas_poleglego_s": 180,
     "hp_po_powrocie": 0.3,
     "koszt_leczenia_za_poziom": 4,
@@ -56,8 +67,13 @@
   },
   "ekonomia": {
     "favor_za_przygode": 0.05,
-    "ogd_na_procent_zlota": 10.0,
     "szansa_przedmiotu_boss": 1.0,
-    "wagi_rzadkosci": { "common": 60, "uncommon": 25, "rare": 10, "epic": 4, "legendary": 1 }
+    "wagi_rzadkosci": {
+      "common": 60,
+      "uncommon": 25,
+      "rare": 10,
+      "epic": 4,
+      "legendary": 1
+    }
   }
 }

@@ -134,20 +134,59 @@ func test_ultimate_i_zloto():
 	for e in c.enemies:
 		if e.x < 1260:
 			assert_true(e.ma_status("ogluszenie"))
-	assert_gt(c.mnoznik_zlota, 1.5, "favor i Ogłada podnoszą mnożnik złota")
+	assert_gt(c.mnoznik_zlota, 1.4, "favor podnosi mnożnik złota")
 
-func test_champion_chaosu_wymaga_magii():
-	var e: Dictionary = Data.hero("ivo")["ekwipunek"]
-	var z_ursa := [Progression.bohater("borubar", 10, "mur", Data.hero("borubar")["ekwipunek"], 2),
-		Progression.bohater("ivo", 10, "potezne_uderzenie", e, 1),
+func test_champion_chaosu_odporny_na_magie_ale_do_pokonania():
+	var ursa := Progression.bohater("ursa", 10, "", {}, 7)
+	var szczur: Dictionary = Data.enemy("szczur")["profil"]
+	var champion: Dictionary = Data.enemy("czempion_chaosu")["profil"]
+	assert_lt(Wfrp.obrazenia("magia", 4.0, ursa.cechy, champion, 3.0, 1.0), Wfrp.obrazenia("magia", 4.0, ursa.cechy, szczur, 0.0, 1.0),
+		"Siła Woli Championa osłabia czary")
+	var druzyna := [Progression.bohater("borubar", 10, "mur", Data.hero("borubar")["ekwipunek"], 2),
+		Progression.bohater("ivo", 10, "potezne_uderzenie", Data.hero("ivo")["ekwipunek"], 1),
 		Progression.bohater("modraszka", 10, "lowczyni", Data.hero("modraszka")["ekwipunek"], 6),
 		Progression.bohater("ursa", 10, "piromantka", Data.hero("ursa")["ekwipunek"], 7)]
-	var bez := [Progression.bohater("borubar", 10, "mur", Data.hero("borubar")["ekwipunek"], 2),
-		Progression.bohater("ivo", 10, "potezne_uderzenie", e, 1),
-		Progression.bohater("modraszka", 10, "lowczyni", Data.hero("modraszka")["ekwipunek"], 6)]
-	var adv := Data.adventure("odbicie_hufduhofu")
-	assert_eq(rozegraj(z_ursa, adv, 4, true, 35, 600.0, true).result, "wygrana", "z Ursą (magia omija pancerz) boss pada")
-	assert_eq(rozegraj(bez, adv, 4, true, 35, 600.0, true).result, "przegrana", "bez magii pancerz Championa jest za gruby")
+	assert_eq(rozegraj(druzyna, Data.adventure("odbicie_hufduhofu"), 4, true, 35, 600.0, true).result, "wygrana", "pełna drużyna na poziomie 10 pokonuje Championa")
+
+func test_ataki_zawsze_trafiaja_i_bywaja_krytyczne():
+	var c := Combat.new()
+	var ivo := Progression.bohater("ivo", 10, "", {}, 2)
+	c.setup([ivo], Data.adventure("piwnice_carroburga"), 4, Data.difficulty("normal"), 4)     # plansza z bossem: dużo ciosów
+	var trafienia := 0
+	var krytyki := 0
+	for i in 2000:
+		c.step(DT)
+		for ev in c.events:
+			assert_false(str(ev["typ"]) in ["pudlo", "unik"], "nie ma pudeł ani uników")
+			if str(ev["typ"]) == "obrazenia" and int(ev["uid"]) != ivo.uid:
+				trafienia += 1
+				if bool(ev.get("krytyk", false)):
+					krytyki += 1
+		c.events.clear()
+		if c.result != "":
+			break
+	assert_gt(trafienia, 10)
+	assert_gt(krytyki, 0, "zdarzają się krytyki")
+	assert_lt(krytyki, trafienia, "ale nie każdy cios jest krytyczny")
+
+func test_wiele_atakow_w_cyklu():
+	var c := Combat.new()
+	var bor := Progression.bohater("borubar", 20, "", {}, 2)
+	c.setup([bor], Data.adventure("prolog_wies"), 4, Data.difficulty("normal"), 2)
+	var ciosy_bossa := 0
+	var cykle := 0
+	for i in 600:
+		c.step(DT)
+		for ev in c.events:
+			if str(ev["typ"]) == "atak" and int(ev["od"]) != bor.uid:
+				cykle += 1
+			if str(ev["typ"]) == "obrazenia" and int(ev["uid"]) == bor.uid:
+				ciosy_bossa += 1
+		c.events.clear()
+		if c.result != "":
+			break
+	assert_gt(cykle, 0)
+	assert_gt(ciosy_bossa, cykle * 2, "Champion (A 3) zadaje kilka ciosów w jednym cyklu")
 
 # ---------------------------------------------------------------- ciągły napływ, postęp celu, monety
 func test_wrogowie_naplywaja_pojedynczo_bez_przerw():

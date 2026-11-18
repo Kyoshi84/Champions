@@ -2,9 +2,13 @@ class_name KW
 extends RefCounted
 ## Wspólne klocki ekranów Koszar: teksty statusów, opisy przedmiotów i umiejętności, karta bohatera w rosterze.
 
-const CECHY := ["WW", "US", "K", "Odp", "Zr", "Int", "SW", "Ogd", "Zyw", "Sz"]
-const CECHY_OPIS := {"WW": "Walka wręcz", "US": "Umiejętności strzeleckie", "K": "Krzepa", "Odp": "Odporność", "Zr": "Zręczność",
-	"Int": "Inteligencja", "SW": "Siła woli", "Ogd": "Ogłada", "Zyw": "Żywotność", "Sz": "Szybkość"}
+const CECHY := ["WW", "US", "K", "Odp", "Zr", "Int", "SW", "Op", "CP", "Ogd", "Zyw", "Sz", "A"]
+const CECHY_OPIS := {"WW": "Walka wręcz - szansa krytyka wręcz (WW/3 %)", "US": "Umiejętności strzeleckie - szansa krytyka z dystansu (US/3 %)",
+	"K": "Krzepa - Siła S = K/10 dodawana do obrażeń", "Odp": "Odporność - Wytrzymałość Wt = Odp/10, część pancerza",
+	"Zr": "Zręczność - siła krytyka (×1,5 + Zr/100)", "Int": "Inteligencja - moc czarów i leczenia",
+	"SW": "Siła Woli - odporność na czary", "Op": "Opanowanie - szansa krytyka czarem (Op/3 %)",
+	"CP": "Cechy Przywódcze - zasięg aur i umiejętności obszarowych", "Ogd": "Ogłada - mnożnik pasywek złota i klejnotów",
+	"Zyw": "Żywotność - punkty życia (×10)", "Sz": "Szybkość - długość cyklu ataku", "A": "Ataki - liczba ciosów w cyklu"}
 
 static func cecha(k: String) -> String:
 	return "Żyw" if k == "Zyw" else k

@@ -9,24 +9,34 @@ Menu → prolog w karczmie → prolog we wsi (przegrana z Championem Chaosu) →
 Przygoda **nie resetuje** bohaterów: poziomy, specjalizacje i ekwipunek zostają. Między planszami polegli wstają,
 a wszyscy odzyskują 30% życia.
 
-## 2. Cechy WFRP w walce (`scripts/core/wfrp.gd`)
+## 2. Cechy WFRP w walce — „Carroburg WFRP-lite” (`scripts/core/wfrp.gd`)
+
+Zasada: **atakujący rzuca tylko na własne cechy, cel broni się pancerzem (przed czarami Siłą Woli). Ataki zawsze trafiają.**
+Nie ma uniku ani parowania. Inicjatywy nie ma — o tempie decyduje licznik z Sz i A.
 
 | Cecha | Działanie |
 |---|---|
-| WW | szansa trafienia wręcz: 55% + (WW atakującego − WW celu) |
-| US | szansa trafienia z dystansu: 35% + US |
-| K | Siła S = K/10, dodawana do obrażeń fizycznych |
-| Odp | Wytrzymałość Wt = Odp/10, odejmowana od obrażeń fizycznych |
-| Zr | unik: Zr/5 % |
-| Int | moc i celność magii, siła leczenia |
-| SW | zmniejsza obrażenia od magii (SW/20) i skraca ogłuszenia |
-| Ogd | każde 10 punktów = +1% zdobywanych koron |
+| WW | szansa krytyka wręcz: WW/3 % (najwyżej 50%) |
+| US | szansa krytyka z dystansu: US/3 % |
+| K | Siła S = K/10; obrażenia wręcz i z dystansu = broń + S |
+| Odp | Wytrzymałość Wt = Odp/10; razem ze zbroją tworzy pancerz |
+| Zr | siła krytyka: ×(1,5 + Zr/100) |
+| Int | moc czarów (jak S dla czarów) i siła leczenia |
+| SW | odporność na czary; skraca też ogłuszenie |
+| Op | szansa krytyka czarem: Op/3 % |
+| CP | zasięg aur „sąsiednie”: CP 35+ także po skosie, CP 50+ dwa pola; promień umiejętności obszarowych × (0,6 + CP/100) |
+| Ogd | mnożnik pasywek złota i klejnotów: × Ogd/30 |
 | Żyw | punkty życia = Żyw × 10 |
-| Sz | każdy punkt powyżej 4 skraca czas między atakami o 6% |
+| Sz | długość cyklu ataku = czas broni × 4 / Sz |
+| A | liczba ciosów w jednym cyklu (każdy z osobnym rzutem na krytyk) |
 
-Obrażenia fizyczne: `(broń + S) × mnożniki − (Wt + pancerz)`, minimum 1.
-**Magia omija Wt i pancerz** — dlatego Ursa jest odpowiedzią na opancerzonych wrogów (Champion Chaosu ma pancerz 3).
-Bazowy czas między atakami: 5 s.
+- **Obrażenia fizyczne** = (broń + S) × mnożniki × krytyk × (1 − P/(P+10)), gdzie P = Wt + zbroja.
+  Pancerz 10 zatrzymuje połowę ciosu; nigdy nie zatrzymuje wszystkiego.
+- **Czar** = moc × mnożniki × krytyk × (1 + (Int − SW celu)/50), w granicach ×0,3..×2,5. Czar omija pancerz.
+  Champion Chaosu (SW 60) jest odporny na magię — pokonuje się go całą drużyną, nie samą Ursą.
+- Pasywki złota (efekt „zloto” w aurze) i klejnotów (efekt „klejnoty”) rosną z Ogładą właściciela.
+- Wszystkie współczynniki: `data/balance.json` → `walka` (pancerz_stala, krytyk_dzielnik, krytyk_max, krytyk_baza,
+  magia_dzielnik, magia_min, magia_max, sz_bazowa, cp_progi, cp_promien_baza, ogd_dzielnik).
 
 ## 3. Walka (`scripts/core/combat.gd`)
 
@@ -59,7 +69,7 @@ Liczba miejsc w drużynie: 2 na start, +2 za każdą ukończoną przygodę (maks
 
 ## 6. Ekonomia
 
-- **Korony**: z wrogów (z mnożnikiem), za ukończenie przygody. Wydawane na poziomy i bohaterów.
+- **Korony**: z wrogów (mnożnik: Favor + pasywki złota × Ogd/30), za ukończenie przygody. Wydawane na poziomy i bohaterów.
 - **Favor**: +5% do wszystkich koron za pierwsze ukończenie każdej przygody na każdej trudności.
 - **Klejnoty**: za bossów na Hard i Hardcore. Na razie tylko się zbierają (sklep — do zrobienia).
 - **Łup z bossa**: losowy przedmiot do magazynu.

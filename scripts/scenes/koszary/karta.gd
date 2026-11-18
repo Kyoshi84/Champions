@@ -123,7 +123,7 @@ static func tabela_profilu(tytul: String, kolumny: Array) -> GridContainer:
 	g.columns = kolumny.size() + 1
 	g.add_theme_constant_override("h_separation", 0)
 	g.add_theme_constant_override("v_separation", 0)
-	var szer_et := 92.0
+	var szer_et := 84.0
 	var naglowek_k := komorka(tytul.to_upper(), Gk.ZLOTO, 12, true, Color(0.30, 0.04, 0.03, 0.9))
 	naglowek_k.custom_minimum_size = Vector2(szer_et, 0)
 	naglowek_k.size_flags_horizontal = Control.SIZE_FILL

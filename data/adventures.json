@@ -125,7 +125,7 @@
       "muzyka": "wioska",
       "wymaga": "trakt_do_hufduhofu",
       "nagroda_korony": 400,
-      "skala_hp": 2.0, "skala_obrazen": 1.4,
+      "skala_hp": 1.6, "skala_obrazen": 1.2,
       "plansze": [
         { "cel": "pokonaj_wszystkich", "opis": "Straże przy bramie",
           "fale": [ { "t": 0.5, "wrogowie": { "zwierzoczlek": 2, "szczur_strzelec": 2 } }, { "t": 14.0, "wrogowie": { "pies_chaosu": 3 } } ] },

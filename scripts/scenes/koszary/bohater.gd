@@ -70,19 +70,22 @@ static func _postac(v: VBoxContainer, id: String) -> void:
 	var c0: Dictionary = start["cechy"]
 	var c1: Dictionary = akt["cechy"]
 	var glowne: Array = []
-	for kc in ["WW", "US", "K", "Odp", "Zr", "Int", "SW", "Ogd"]:
+	for kc in ["WW", "US", "K", "Odp", "Zr", "Int", "SW", "Op", "CP", "Ogd"]:
 		glowne.append([KW.cecha(kc), str(KW.CECHY_OPIS[kc]), roundf(float(c0.get(kc, 0))), roundf(float(c1.get(kc, 0))), "%d", true])
 	s3[1].add_child(KKarta.tabela_profilu("Główne", glowne))
+	var typ := str(def.get("atak", {}).get("typ", "wrecz"))
 	var czas := float(def.get("atak", {}).get("czas", 5.0))
 	var dodatkowe := [
 		["Żyw", "Żywotność", float(c0.get("Zyw", 0)), float(c1.get("Zyw", 0)), "%.1f", true],
 		["HP", "Punkty życia = Żyw × 10", roundf(Wfrp.max_hp(c0)), roundf(Wfrp.max_hp(c1)), "%d", true],
 		["S", "Siła = K / 10, dodawana do obrażeń", Wfrp.sila(c0), Wfrp.sila(c1), "%.1f", true],
-		["Wt", "Wytrzymałość = Odp / 10, zmniejsza obrażenia", Wfrp.wytrzymalosc(c0), Wfrp.wytrzymalosc(c1), "%.1f", true],
-		["Sz", "Szybkość - skraca czas między atakami", roundf(float(c0.get("Sz", 4))), roundf(float(c1.get("Sz", 4))), "%d", true],
-		["PP", "Punkty pancerza (z wyposażenia i umiejętności)", float(start["pancerz"]), float(akt["pancerz"]), "%.1f", true],
-		["Unik", "Szansa uniku (ze Zręczności)", roundf(Wfrp.unik(c0) * 100.0), roundf(Wfrp.unik(c1) * 100.0), "%d%%", true],
-		["Cios", "Sekundy między atakami (mniej = szybciej)", Wfrp.czas_ataku(czas, c0), Wfrp.czas_ataku(float(akt["atak"].get("czas", czas)), c1), "%.1f", false]]
+		["Sz", "Szybkość: cykl ataku = czas broni × 4 / Sz", roundf(float(c0.get("Sz", 4))), roundf(float(c1.get("Sz", 4))), "%d", true],
+		["A", "Ataki: ciosów w jednym cyklu", float(Wfrp.ataki(c0)), float(Wfrp.ataki(c1)), "%d", true],
+		["Panc.", "Pancerz = Wt + zbroja; zatrzymuje ten procent obrażeń fizycznych",
+			roundf(Wfrp.redukcja(Wfrp.pancerz(c0, float(start["pancerz"]))) * 100.0), roundf(Wfrp.redukcja(Wfrp.pancerz(c1, float(akt["pancerz"]))) * 100.0), "%d%%", true],
+		["Kryt.", "Szansa krytyka (%s/3)" % Wfrp.cecha_krytyka(typ), roundf(Wfrp.szansa_krytyka(typ, c0) * 100.0), roundf(Wfrp.szansa_krytyka(typ, c1) * 100.0), "%d%%", true],
+		["×Kryt", "Siła krytyka = 1,5 + Zr/100", Wfrp.sila_krytyka(c0), Wfrp.sila_krytyka(c1), "%.2f", true],
+		["Cykl", "Sekundy między cyklami ataku (mniej = szybciej)", Wfrp.czas_ataku(czas, c0), Wfrp.czas_ataku(float(akt["atak"].get("czas", czas)), c1), "%.1f", false]]
 	s3[1].add_child(KKarta.tabela_profilu("Dodatkowe", dodatkowe))
 	v.add_child(s3[0])
 
@@ -167,9 +170,11 @@ static func _sluzba(k: BarracksScene, v: VBoxContainer, id: String) -> void:
 		if s["odblokowana"] and str(s.get("typ", "")) == "atak_mnoznik":
 			mn *= float(s.get("mnoznik", 1.0))
 	var obr := Wfrp.obrazenia(rodzaj, float(atak.get("bron", 1.0)), z["cechy"], {}, 0.0, mn)
-	s3[1].add_child(KKarta.dwa_pola(KKarta.pole("Cios co", "%.1f s" % Wfrp.czas_ataku(float(atak.get("czas", 5.0)), z["cechy"])),
-		KKarta.pole("Obrażenia", "%d" % roundi(obr), Gk.ZLOTO_J)))
-	s3[1].add_child(KKarta.pole("Zasięg", "tylko z przedniego rzędu" if rodzaj == "wrecz" else "każdy wróg na polu"))
+	var ile := Wfrp.ataki(z["cechy"])
+	s3[1].add_child(KKarta.dwa_pola(KKarta.pole("Cykl co", "%.1f s%s" % [Wfrp.czas_ataku(float(atak.get("czas", 5.0)), z["cechy"]), "  ×%d ciosy" % ile if ile > 1 else ""]),
+		KKarta.pole("Obrażenia", "%d  (kryt. %d)" % [roundi(obr), roundi(obr * Wfrp.sila_krytyka(z["cechy"]))], Gk.ZLOTO_J)))
+	s3[1].add_child(KKarta.pole("Krytyk", "%d%% szans (z %s), ×%.2f (ze Zr)" % [roundi(Wfrp.szansa_krytyka(rodzaj, z["cechy"]) * 100.0), Wfrp.cecha_krytyka(rodzaj), Wfrp.sila_krytyka(z["cechy"])]))
+	s3[1].add_child(KKarta.pole("Zasięg", "tylko z przedniego rzędu" if rodzaj == "wrecz" else ("każdy wróg; omija pancerz, chroni SW" if rodzaj == "magia" else "każdy wróg na polu")))
 	v.add_child(s3[0])
 
 	var s4 := KKarta.sekcja("Podsumowanie zdolności")

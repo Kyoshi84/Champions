@@ -33,6 +33,8 @@ static func w_zasiegu(zrodlo: int, cel: int, zasieg: String) -> bool:
 			return true
 		"sasiednie":
 			return dr + dt == 1
+		"sasiednie_skos":
+			return zrodlo != cel and dr <= 1 and dt <= 1
 		"zasieg_2":
 			return zrodlo != cel and dr + dt <= 2
 		"kolumna":
@@ -50,6 +52,7 @@ static func w_zasiegu(zrodlo: int, cel: int, zasieg: String) -> bool:
 static func nazwa_zasiegu(zasieg: String) -> String:
 	match zasieg:
 		"ja": return "tylko on sam"
+		"sasiednie_skos": return "sąsiednie pola i po skosie"
 		"druzyna": return "cała drużyna"
 		"sasiednie": return "sąsiednie pola"
 		"zasieg_2": return "pola w zasięgu 2"
@@ -78,7 +81,7 @@ static func przelicz_aury(units: Array) -> void:
 		if not src.alive:
 			continue
 		for s in src.skills_of("aura"):
-			var zasieg: String = str(s.get("zasieg", "sasiednie"))
+			var zasieg: String = Wfrp.zasieg_cp(str(s.get("zasieg", "sasiednie")), src.cechy)      # CP poszerza aury
 			for h in units:
 				if not h.alive:
 					continue

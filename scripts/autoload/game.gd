@@ -555,13 +555,13 @@ func ukoncz_prolog() -> void:
 	save()
 
 ## Nagrody za ukończenie przygody. Zwraca opis nagród do pokazania graczowi.
-func ukoncz_przygode(adv_id: String, trudnosc: String, rng: RandomNumberGenerator) -> Dictionary:
+func ukoncz_przygode(adv_id: String, trudnosc: String, rng: RandomNumberGenerator, mnoznik_klejnotow: float = 1.0) -> Dictionary:
 	var adv := Data.adventure(adv_id)
 	var d := Data.difficulty(trudnosc)
 	var pierwszy := not ukonczona(adv_id, trudnosc)
 	var nagroda := {"korony": 0, "klejnoty": 0, "przedmiot": "", "favor": 0.0, "pierwszy_raz": pierwszy}
 	nagroda["korony"] = roundi(float(adv.get("nagroda_korony", 0)) * float(d.get("zloto", 1.0)) * (1.0 if pierwszy else 0.25))
-	nagroda["klejnoty"] = int(d.get("klejnoty_za_bossa", 0))
+	nagroda["klejnoty"] = roundi(float(d.get("klejnoty_za_bossa", 0)) * mnoznik_klejnotow)
 	var eko: Dictionary = Data.balance.get("ekonomia", {})
 	if rng.randf() <= float(eko.get("szansa_przedmiotu_boss", 1.0)):
 		nagroda["przedmiot"] = losuj_przedmiot(rng)

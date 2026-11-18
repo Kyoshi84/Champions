@@ -1,17 +1,14 @@
 class_name Wfrp
 extends RefCounted
-## Uproszczona mechanika Warhammer Fantasy Roleplay przeniesiona na walkę w czasie rzeczywistym.
-## Każda cecha ma realne zastosowanie:
-##   WW  - szansa trafienia wręcz (i obrona przed trafieniem wręcz)
-##   US  - szansa trafienia z dystansu
-##   K   - Siła (S = K/10) dodawana do obrażeń fizycznych
-##   Odp - Wytrzymałość (Wt = Odp/10) odejmowana od obrażeń fizycznych
-##   Zr  - szansa uniku
-##   Int - moc i celność magii, siła leczenia
-##   SW  - odporność na magię i skracanie ogłuszeń
-##   Ogd - premia do zdobywanych koron (targowanie się)
-##   Zyw - punkty życia
-##   Sz  - czas między atakami
+## Uproszczona mechanika Warhammer Fantasy Roleplay dla walki automatycznej („Carroburg WFRP-lite”).
+## Atakujący rzuca tylko na własne cechy, cel broni się pancerzem (przed czarami: Siłą Woli). Ataki zawsze trafiają.
+##   WW  - szansa krytyka wręcz              US  - szansa krytyka z dystansu       Op - szansa krytyka czarem
+##   Zr  - siła krytyka (×1,5 + Zr/100)      K   - Siła S = K/10, + broń = obrażenia fizyczne
+##   Odp - Wytrzymałość Wt = Odp/10, razem ze zbroją tworzy pancerz (procentowa redukcja obrażeń fizycznych)
+##   Int - moc czarów i leczenia (jak S dla czarów)   SW - odporność na czary
+##   Zyw - punkty życia (×10)    Sz - długość cyklu ataku    A - liczba ciosów w cyklu
+##   CP  - zasięg aur przywódczych i umiejętności obszarowych
+##   Ogd - mnożnik pasywnych umiejętności złota i klejnotów
 ## Wszystkie współczynniki: data/balance.json -> "walka".
 
 static func B() -> Dictionary:
@@ -26,47 +23,86 @@ static func wytrzymalosc(c: Dictionary) -> float:
 static func max_hp(c: Dictionary) -> float:
 	return maxf(1.0, float(c.get("Zyw", 1)) * float(B().get("hp_na_zyw", 10.0)))
 
-## Szansa trafienia (0..1) przed unikiem.
-static func szansa_trafienia(typ: String, att: Dictionary, def: Dictionary) -> float:
+# ---------------------------------------------------------------- pancerz
+## Pancerz = Wt + zbroja (punkty pancerza z przedmiotów i umiejętności).
+static func pancerz(c: Dictionary, zbroja: float) -> float:
+	return wytrzymalosc(c) + zbroja
+
+## Ułamek obrażeń fizycznych zatrzymany przez pancerz: P / (P + stała). Nigdy 100%, każdy punkt coś daje.
+static func redukcja(p: float) -> float:
+	p = maxf(p, 0.0)
+	return p / (p + float(B().get("pancerz_stala", 10.0)))
+
+# ---------------------------------------------------------------- krytyki
+static func cecha_krytyka(typ: String) -> String:
+	match typ:
+		"dystans": return "US"
+		"magia": return "Op"
+	return "WW"
+
+## Szansa krytyka (0..1): WW, US albo Op podzielone przez 'krytyk_dzielnik', najwyżej 'krytyk_max'.
+static func szansa_krytyka(typ: String, c: Dictionary) -> float:
 	var b := B()
-	var s := 0.5
-	match typ:
-		"wrecz":
-			s = float(b.get("szansa_bazowa_wrecz", 0.55)) + (float(att.get("WW", 0)) - float(def.get("WW", 0))) / 100.0
-		"dystans":
-			s = float(b.get("szansa_bazowa_dystans", 0.35)) + float(att.get("US", 0)) / 100.0
-		"magia":
-			s = float(b.get("szansa_bazowa_magia", 0.6)) + (float(att.get("Int", 0)) - float(def.get("SW", 0))) / 100.0
-	return clampf(s, float(b.get("min_szansa", 0.2)), float(b.get("max_szansa", 0.95)))
+	return clampf(float(c.get(cecha_krytyka(typ), 0)) / float(b.get("krytyk_dzielnik", 3.0)) / 100.0, 0.0, float(b.get("krytyk_max", 0.5)))
 
-static func unik(def: Dictionary) -> float:
-	return clampf(float(def.get("Zr", 0)) / float(B().get("unik_dzielnik", 500.0)), 0.0, 0.5)
+## Mnożnik krytyka: ×1,5 + Zr/100.
+static func sila_krytyka(c: Dictionary) -> float:
+	return float(B().get("krytyk_baza", 1.5)) + float(c.get("Zr", 0)) / 100.0
 
-## Obrażenia po redukcji celu. Fizyczne: (broń + S) x mnożnik - (Wt + pancerz). Magia omija pancerz i Wt,
-## zmniejsza ją tylko Siła Woli celu. Zawsze co najmniej 1.
-static func obrazenia(typ: String, bron: float, att: Dictionary, def: Dictionary, pancerz: float, mnoznik: float) -> float:
-	var dmg := 0.0
-	match typ:
-		"wrecz":
-			dmg = (bron + sila(att)) * mnoznik - (wytrzymalosc(def) + pancerz)
-		"dystans":
-			dmg = (bron + sila(att) * 0.5) * mnoznik - (wytrzymalosc(def) + pancerz)
-		"magia":
-			dmg = (bron + float(att.get("Int", 0)) / 10.0) * mnoznik - float(def.get("SW", 0)) / float(B().get("odpornosc_magii_dzielnik", 20.0))
-	return maxf(1.0, dmg)
+# ---------------------------------------------------------------- obrażenia
+## Fizyczne: (broń + S) × mnożnik × krytyk × (1 − redukcja pancerza celu).
+## Czar: moc × mnożnik × krytyk × (1 + (Int − SW celu) / 50), w granicach ×0,3..×2,5; czar omija pancerz.
+static func obrazenia(typ: String, bron: float, att: Dictionary, def: Dictionary, zbroja: float, mnoznik: float, krytyk: bool = false) -> float:
+	var k := sila_krytyka(att) if krytyk else 1.0
+	if typ == "magia":
+		return maxf(0.1, bron * mnoznik * k * mnoznik_czaru(att, def))
+	var surowe := (bron + sila(att)) * mnoznik * k
+	return maxf(0.1, surowe * (1.0 - redukcja(pancerz(def, zbroja))))
 
-## Czas między atakami: każdy punkt Sz powyżej bazowej skraca go o 'sz_krok'.
+static func mnoznik_czaru(att: Dictionary, def: Dictionary) -> float:
+	var b := B()
+	var r := (float(att.get("Int", 0)) - float(def.get("SW", 0))) / float(b.get("magia_dzielnik", 50.0))
+	return clampf(1.0 + r, float(b.get("magia_min", 0.3)), float(b.get("magia_max", 2.5)))
+
+## Średnie obrażenia jednego ciosu z uwzględnieniem krytyków (do kart i kręgów pod bohaterem).
+static func obrazenia_srednie(typ: String, bron: float, att: Dictionary, def: Dictionary, zbroja: float, mnoznik: float) -> float:
+	var p := szansa_krytyka(typ, att)
+	return obrazenia(typ, bron, att, def, zbroja, mnoznik) * (1.0 + p * (sila_krytyka(att) - 1.0))
+
+# ---------------------------------------------------------------- tempo
+## Długość cyklu ataku: czas broni × Sz bazowa / Sz.
 static func czas_ataku(bazowy: float, c: Dictionary) -> float:
 	var b := B()
-	var k := 1.0 - (float(c.get("Sz", 4)) - float(b.get("sz_bazowa", 4.0))) * float(b.get("sz_krok", 0.06))
-	return maxf(float(b.get("min_czas_ataku", 0.8)), bazowy * clampf(k, 0.4, 1.6))
+	var sz := maxf(1.0, float(c.get("Sz", 4)))
+	return maxf(float(b.get("min_czas_ataku", 0.8)), bazowy * float(b.get("sz_bazowa", 4.0)) / sz)
 
+## Liczba ciosów w jednym cyklu (cecha A).
+static func ataki(c: Dictionary) -> int:
+	return maxi(1, roundi(float(c.get("A", 1))))
+
+# ---------------------------------------------------------------- reszta
 static func czas_ogluszenia(czas: float, c: Dictionary, odp_ogluszenie: float) -> float:
 	return czas * clampf(1.0 - float(c.get("SW", 0)) / 100.0, 0.2, 1.0) * clampf(1.0 - odp_ogluszenie, 0.1, 1.0)
 
 static func leczenie(moc: float, c: Dictionary) -> float:
 	return moc + float(c.get("Int", 0)) / 10.0
 
-## Premia do złota od Ogłady jednego bohatera (ułamek).
-static func premia_zlota(c: Dictionary) -> float:
-	return float(c.get("Ogd", 0)) / float(Data.balance.get("ekonomia", {}).get("ogd_na_procent_zlota", 10.0)) / 100.0
+## Mnożnik pasywnych umiejętności złota i klejnotów z Ogłady (Ogd 30 = ×1).
+static func mnoznik_ogd(c: Dictionary) -> float:
+	return float(c.get("Ogd", 0)) / float(B().get("ogd_dzielnik", 30.0))
+
+## Zasięg aury przywódczej z CP: „sąsiednie” rośnie do skosów (CP 35+) i dwóch pól (CP 50+). Inne kształty bez zmian.
+static func zasieg_cp(zasieg: String, c: Dictionary) -> String:
+	if zasieg != "sasiednie":
+		return zasieg
+	var cp := float(c.get("CP", 0))
+	var progi: Array = B().get("cp_progi", [35, 50])
+	if cp >= float(progi[1]):
+		return "zasieg_2"
+	if cp >= float(progi[0]):
+		return "sasiednie_skos"
+	return "sasiednie"
+
+## Promień umiejętności obszarowej z CP: × (0,6 + CP/100), czyli CP 40 = bez zmian.
+static func promien_cp(promien: float, c: Dictionary) -> float:
+	return promien * (float(B().get("cp_promien_baza", 0.6)) + float(c.get("CP", 0)) / 100.0)

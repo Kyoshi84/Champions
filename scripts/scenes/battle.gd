@@ -177,7 +177,7 @@ func _koniec_planszy() -> void:
 			_koniec_prologu()
 			return
 		Game.zapisz_zdrowie(heroes)
-		var n := Game.ukoncz_przygode(adv_id, trudnosc, rng)
+		var n := Game.ukoncz_przygode(adv_id, trudnosc, rng, sim.mnoznik_klejnotow())
 		var opis := "Zdobyte w walce: %d koron\nNagroda za przygodę: %d koron" % [roundi(_zebrane), int(n["korony"])]
 		if int(n["klejnoty"]) > 0:
 			opis += "\nKlejnoty: +%d" % int(n["klejnoty"])
@@ -274,7 +274,7 @@ func _obrazenia(h: CUnit) -> float:
 	var mn := h.skala_obrazen * (1.0 + float(h.aury.get("obrazenia", 0.0)))
 	for s in h.skills_of("atak_mnoznik"):
 		mn *= float(s.get("mnoznik", 1.0))
-	return Wfrp.obrazenia(str(h.atak.get("typ", "wrecz")), float(h.atak.get("bron", 1.0)), h.cechy, {}, 0.0, mn)
+	return Wfrp.obrazenia_srednie(str(h.atak.get("typ", "wrecz")), float(h.atak.get("bron", 1.0)), h.cechy, {}, 0.0, mn) * Wfrp.ataki(h.cechy)
 
 func _zdarzenia() -> void:
 	for ev in sim.events:
@@ -306,8 +306,11 @@ func _zdarzenia() -> void:
 				if a != null:
 					a.blysk()
 					var wrog: bool = uid >= 1000
-					Fx.tekst(self, a.position + Vector2(0, -a.wys), str(maxi(1, roundi(float(ev["ile"])))),
-						Color(1.0, 0.92, 0.5) if wrog else Color(1.0, 0.35, 0.3), 20 if wrog else 22)
+					var ile := maxi(1, roundi(float(ev["ile"])))
+					if bool(ev.get("krytyk", false)):          # trafienie krytyczne: większa liczba z wykrzyknikiem
+						Fx.tekst(self, a.position + Vector2(0, -a.wys - 14), "%d!" % ile, Color(1.0, 0.62, 0.1) if wrog else Color(1.0, 0.15, 0.1), 32)
+					else:
+						Fx.tekst(self, a.position + Vector2(0, -a.wys), str(ile), Color(1.0, 0.92, 0.5) if wrog else Color(1.0, 0.35, 0.3), 20 if wrog else 22)
 					if not wrog:
 						Audio.play("hurt")
 					elif randf() < 0.5:

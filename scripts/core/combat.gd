@@ -422,7 +422,7 @@ func _atak(att: CUnit, cel: CUnit) -> void:
 	if att.furia > 0:
 		mnoznik *= 1.0 + att.furia * float(Data.balance.get("boss", {}).get("furia_obrazenia", 0.15))
 	var cele: Array = [cel]
-	var promien := float(specjalny.get("promien", 0.0))
+	var promien := Wfrp.promien_cp(float(specjalny.get("promien", 0.0)), att.cechy)      # CP poszerza obszar
 	if promien > 0.0:
 		var pula: Array = enemies if att.team == 0 else heroes
 		for o in pula:
@@ -430,20 +430,20 @@ func _atak(att: CUnit, cel: CUnit) -> void:
 				cele.append(o)
 	events.append({"typ": "atak", "od": att.uid, "do": cel.uid, "rodzaj": typ, "specjalny": str(specjalny.get("nazwa", "")),
 		"pocisk": str(att.atak.get("pocisk", "")), "dzwiek": str(att.atak.get("dzwiek", "hit")), "promien": promien})
-	for t in cele:
-		_trafienie(att, t, typ, mnoznik, specjalny)
+	# A ciosów w cyklu, każdy zawsze trafia i ma własny rzut na krytyk (WW / US / Op)
+	for nr in Wfrp.ataki(att.cechy):
+		var kryt := rng.randf() < Wfrp.szansa_krytyka(typ, att.cechy)
+		for t in cele:
+			if t.alive:
+				_trafienie(att, t, typ, mnoznik, specjalny, kryt)
+		if not cel.alive:
+			break
 
-func _trafienie(att: CUnit, t: CUnit, typ: String, mnoznik: float, specjalny: Dictionary) -> void:
-	if rng.randf() > Wfrp.szansa_trafienia(typ, att.cechy, t.cechy):
-		events.append({"typ": "pudlo", "uid": t.uid})
-		return
-	if not t.ma_status("ogluszenie") and rng.randf() < Wfrp.unik(t.cechy):
-		events.append({"typ": "unik", "uid": t.uid})
-		return
-	var dmg := Wfrp.obrazenia(typ, float(att.atak.get("bron", 1.0)), att.cechy, t.cechy, t.pancerz, mnoznik)
+func _trafienie(att: CUnit, t: CUnit, typ: String, mnoznik: float, specjalny: Dictionary, kryt: bool = false) -> void:
+	var dmg := Wfrp.obrazenia(typ, float(att.atak.get("bron", 1.0)), att.cechy, t.cechy, t.pancerz, mnoznik, kryt)
 	dmg *= 1.0 - float(t.aury.get("redukcja", 0.0))
 	dmg *= 1.0 - t.status("tarcza")
-	_zadaj(t, maxf(1.0, dmg), typ)
+	_zadaj(t, dmg, typ, kryt)
 	if not t.alive:
 		return
 	for s in att.skills_of("status_przy_trafieniu"):
@@ -456,11 +456,11 @@ func _trafienie(att: CUnit, t: CUnit, typ: String, mnoznik: float, specjalny: Di
 		t.x = minf(t.x + odrzut, float(B.get("ekran_x", 1260)))
 		events.append({"typ": "odrzut", "uid": t.uid})
 
-func _zadaj(t: CUnit, dmg: float, rodzaj: String) -> void:
+func _zadaj(t: CUnit, dmg: float, rodzaj: String, kryt: bool = false) -> void:
 	if not t.alive:
 		return
 	t.hp -= dmg
-	events.append({"typ": "obrazenia", "uid": t.uid, "ile": dmg, "rodzaj": rodzaj})
+	events.append({"typ": "obrazenia", "uid": t.uid, "ile": dmg, "rodzaj": rodzaj, "krytyk": kryt})
 	if t.hp > 0.0:
 		return
 	if t.niesmiertelny:
@@ -486,10 +486,18 @@ func _przelicz_zloto() -> void:
 	for h in heroes:
 		if not h.alive:
 			continue
-		m += Wfrp.premia_zlota(h.cechy)
-		for s in h.skills_of("aura"):
-			m += float(s.get("efekty", {}).get("zloto", 0.0))
+		for s in h.skills_of("aura"):          # pasywki złota rosną z Ogładą właściciela
+			m += float(s.get("efekty", {}).get("zloto", 0.0)) * Wfrp.mnoznik_ogd(h.cechy)
 	mnoznik_zlota = m
+
+## Mnożnik klejnotów z pasywek „klejnoty” (też skalowanych Ogładą) - do nagród za bossa.
+func mnoznik_klejnotow() -> float:
+	var m := 1.0
+	for h in heroes:
+		if h.alive:
+			for s in h.skills_of("aura"):
+				m += float(s.get("efekty", {}).get("klejnoty", 0.0)) * Wfrp.mnoznik_ogd(h.cechy)
+	return m
 
 # ---------------------------------------------------------------- akcje gracza
 ## Strzał z nieba w punkt pola bitwy. Zwraca true, jeśli strzał padł (nie był w odnowieniu).
@@ -546,7 +554,8 @@ func uzyj_ult(h: CUnit) -> bool:
 		"obrazenia_wszystkich":
 			for e in enemies.duplicate():
 				if e.alive and e.x <= float(B.get("ekran_x", 1260)):
-					_zadaj(e, Wfrp.obrazenia("magia", float(u.get("moc", 10.0)), h.cechy, e.cechy, e.pancerz, 1.0), "magia")
+					var kryt := rng.randf() < Wfrp.szansa_krytyka("magia", h.cechy)
+					_zadaj(e, Wfrp.obrazenia("magia", float(u.get("moc", 10.0)), h.cechy, e.cechy, e.pancerz, 1.0, kryt), "magia", kryt)
 		"tarcza_druzyny":
 			for o in heroes:
 				_status(o, "tarcza", float(u.get("moc", 0.5)), float(u.get("czas", 5.0)))
