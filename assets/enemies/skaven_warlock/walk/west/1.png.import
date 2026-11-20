@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://se87wp4ptmp7"
-path="res://.godot/imported/1.png-124b68652bbb6190ee0069cda1267299.ctex"
+uid="uid://3lyijn5xm8av"
+path="res://.godot/imported/1.png-4cc78c8582af5a9148bdb0287dfc3896.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/enemies/skaven_slinger/attack/west/1.png"
-dest_files=["res://.godot/imported/1.png-124b68652bbb6190ee0069cda1267299.ctex"]
+source_file="res://assets/enemies/skaven_warlock/walk/west/1.png"
+dest_files=["res://.godot/imported/1.png-4cc78c8582af5a9148bdb0287dfc3896.ctex"]
 
 [params]
 
