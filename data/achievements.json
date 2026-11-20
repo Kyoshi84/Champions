@@ -14,6 +14,6 @@
     { "id": "pelny_szyk", "nazwa": "Pełny szyk", "opis": "Odblokuj sześć miejsc w drużynie.", "warunek": { "typ": "miejsca", "cel": 6 }, "nagroda_klejnoty": 10 },
     { "id": "laska_ulryka", "nazwa": "Łaska Ulryka", "opis": "Zdobądź 15% Favoru.", "warunek": { "typ": "favor", "cel": 15 }, "nagroda_klejnoty": 15 },
     { "id": "lup_wojenny", "nazwa": "Łup wojenny", "opis": "Zdobądź przedmiot rzadki lub lepszy.", "warunek": { "typ": "rzadkosc", "rzadkosc": "rare", "cel": 1 }, "nagroda_klejnoty": 10 },
-    { "id": "pod_bronia", "nazwa": "Pod bronią", "opis": "Wyposaż bohatera we wszystkie sześć slotów.", "warunek": { "typ": "pelny_ekwipunek", "cel": 1 }, "nagroda_klejnoty": 15 }
+    { "id": "pod_bronia", "nazwa": "Pod bronią", "opis": "Wyposaż bohatera we wszystkie siedem slotów.", "warunek": { "typ": "pelny_ekwipunek", "cel": 1 }, "nagroda_klejnoty": 15 }
   ]
 }

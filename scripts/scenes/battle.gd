@@ -178,6 +178,7 @@ func _koniec_planszy() -> void:
 			return
 		Game.zapisz_zdrowie(heroes)
 		var n := Game.ukoncz_przygode(adv_id, trudnosc, rng, sim.mnoznik_klejnotow())
+		Game.sklep_nowa_dostawa(rng)
 		var opis := "Zdobyte w walce: %d koron\nNagroda za przygodę: %d koron" % [roundi(_zebrane), int(n["korony"])]
 		if int(n["klejnoty"]) > 0:
 			opis += "\nKlejnoty: +%d" % int(n["klejnoty"])
@@ -192,7 +193,10 @@ func _koniec_planszy() -> void:
 	if bool(b.get("przegrana_fabularna", false)):
 		_koniec_prologu()
 		return
-	Game.save()
+	if bool(adv.get("prolog", false)):
+		Game.save()
+	else:
+		Game.sklep_nowa_dostawa(rng)      # misja rozegrana (także przegrana) - kupiec przywozi nowy towar
 	var powod := "Upłynął limit czasu." if sim.powod == "czas" else "Cała drużyna poległa."
 	var przyciski: Array = [["Spróbuj ponownie", func():
 		for h in heroes:

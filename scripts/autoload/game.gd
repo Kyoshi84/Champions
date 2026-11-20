@@ -22,7 +22,8 @@ func new_game(zapisz: bool = true) -> void:
 		"postep": {},             # id przygody -> {trudność: true}
 		"ranking": [],
 		"osiagniecia": {},        # id -> true (nagroda odebrana)
-		"arena": {"formacja": [], "pokonani": [], "rekordy": {}}   # osobny szyk 10 bohaterów, pokonani przeciwnicy, najlepsze czasy
+		"arena": {"formacja": [], "pokonani": [], "rekordy": {}},  # osobny szyk 10 bohaterów, pokonani przeciwnicy, najlepsze czasy
+		"sklep": {"oferta": [], "kupione": [], "dostawa": 0}         # bieżący towar kupca, co już kupiono, numer dostawy
 	}
 	for i in Formation.POLA:
 		state["formacja"].append("")
@@ -52,6 +53,13 @@ func load_game() -> bool:
 			state["arena"][k] = {} if k == "rekordy" else []
 	while state["arena"]["formacja"].size() < Formation.POLA:
 		state["arena"]["formacja"].append("")
+	if not state.get("sklep") is Dictionary:                # starszy zapis bez sklepu
+		state["sklep"] = {}
+	for k in ["oferta", "kupione"]:
+		if not state["sklep"].has(k):
+			state["sklep"][k] = []
+	if not state["sklep"].has("dostawa"):
+		state["sklep"]["dostawa"] = 0
 	changed.emit()
 	return true
 
@@ -187,6 +195,52 @@ func losuj_przedmiot(rng: RandomNumberGenerator) -> String:
 		if r <= 0.0:
 			return str(p[0])
 	return str(pula[pula.size() - 1][0])
+
+# ---------------------------------------------------------------- sklep
+## Bieżący towar kupca (losuje pierwszą dostawę, jeśli jeszcze jej nie było).
+func sklep_oferta() -> Array:
+	var s: Dictionary = state["sklep"]
+	if s["oferta"].is_empty():
+		s["oferta"] = Sklep.losuj_oferte(_rng(), state["bohaterowie"].keys())
+		s["kupione"] = []
+		s["dostawa"] = maxi(1, int(s["dostawa"]))
+	return s["oferta"]
+
+func sklep_dostawa() -> int:
+	sklep_oferta()
+	return int(state["sklep"]["dostawa"])
+
+## Nowy towar - wywoływane po każdej misji kampanii (wygranej albo przegranej).
+func sklep_nowa_dostawa(rng: RandomNumberGenerator = null) -> void:
+	var s: Dictionary = state["sklep"]
+	s["oferta"] = Sklep.losuj_oferte(rng if rng != null else _rng(), state["bohaterowie"].keys())
+	s["kupione"] = []
+	s["dostawa"] = int(s["dostawa"]) + 1
+	save()
+
+func sklep_kupiony(item_id: String) -> bool:
+	return state["sklep"]["kupione"].has(item_id)
+
+func cena(item_id: String) -> int:
+	return int(Data.item(item_id).get("cena", 0))
+
+func moze_kupic_przedmiot(item_id: String) -> bool:
+	return sklep_oferta().has(item_id) and not sklep_kupiony(item_id) and int(state["korony"]) >= cena(item_id)
+
+## Kupno z kramu: korony -> przedmiot do magazynu; do następnej dostawy ta pozycja jest wyprzedana.
+func kup_przedmiot(item_id: String) -> bool:
+	if not moze_kupic_przedmiot(item_id):
+		return false
+	state["korony"] = int(state["korony"]) - cena(item_id)
+	state["magazyn"].append(item_id)
+	state["sklep"]["kupione"].append(item_id)
+	save()
+	return true
+
+func _rng() -> RandomNumberGenerator:
+	var r := RandomNumberGenerator.new()
+	r.randomize()
+	return r
 
 # ---------------------------------------------------------------- formacja
 func miejsca() -> int:

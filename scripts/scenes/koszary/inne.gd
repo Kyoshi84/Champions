@@ -1,29 +1,6 @@
 class_name KInne
 extends RefCounted
-## 10. Sklep (na razie zamknięty) i 11. Osiągnięcia.
-
-static func sklep(k: BarracksScene, c: Control, _p: Dictionary) -> void:
-	var srodek := CenterContainer.new()
-	k.pelny(srodek, c)
-	var r := Gk.rama(28.0)
-	r.custom_minimum_size = Vector2(640, 0)
-	var v := Gk.vb(12)
-	r.add_child(v)
-	v.add_child(Ikona.nowa("klodka", 84.0, Gk.ZLOTO_C))
-	var t := Gk.tytul("Sklep jest zamknięty", 34)
-	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	v.add_child(t)
-	var o := Gk.tekst("Kupiec z Altdorfu utknął na trakcie — dopóki drogi są pełne Zwierzoludzi, kram stoi pusty.\nSklep zostanie otwarty w jednej z kolejnych wersji gry.", 18, Gk.TEKST)
-	o.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	v.add_child(o)
-	var kl := Gk.waluta("klejnot", "Twoje klejnoty: %d — poczekają na otwarcie." % int(Game.state["klejnoty"]), Color(0.92, 0.36, 0.42), 18)
-	kl.alignment = BoxContainer.ALIGNMENT_CENTER
-	v.add_child(kl)
-	var b := Gk.przycisk("Wróć do Hubu", k.hub, false, 240.0, 50.0, "wstecz")
-	b.name = "btn_sklep_hub"
-	b.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	v.add_child(b)
-	srodek.add_child(r)
+## 11. Osiągnięcia (Sklep ma własny plik: sklep.gd).
 
 static func osiagniecia(k: BarracksScene, c: Control, _p: Dictionary) -> void:
 	var v: VBoxContainer = k.pelny(Gk.vb(10), c)

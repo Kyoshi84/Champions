@@ -54,7 +54,12 @@ static func buduj(k: BarracksScene, c: Control, _p: Dictionary) -> void:
 			do_wynajecia += 1
 	_kafel(k, siatka, "tawerna", "kufel", "Tawerna „Złoty Prosiak”", "Rekrutacja bohaterów",
 		"Do zwerbowania: %d" % do_wynajecia if do_wynajecia > 0 else "Wszyscy już w Gwardii", Gk.ZLOTO_J if do_wynajecia > 0 else Gk.PRZYG)
-	_kafel(k, siatka, "sklep", "skrzynia", "Sklep", "Zamknięty", "Kupiec jeszcze nie dotarł", Gk.PRZYG, true)
+	var w_ofercie := 0
+	for it in Game.sklep_oferta():
+		if not Game.sklep_kupiony(str(it)):
+			w_ofercie += 1
+	_kafel(k, siatka, "sklep", "skrzynia", "Sklep", str(Data.items.get("sklep", {}).get("kupiec", {}).get("kram", "Kram kupca")),
+		"Na kramie: %d" % w_ofercie if w_ofercie > 0 else "Wyprzedane — nowy towar po misji", Gk.ZLOTO_J if w_ofercie > 0 else Gk.PRZYG)
 	var do_odebrania := Game.osiagniecia_do_odebrania()
 	var zdobyte := 0
 	for o in Data.achievement_list():

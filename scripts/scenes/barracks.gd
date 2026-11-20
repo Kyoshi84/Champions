@@ -146,7 +146,7 @@ func _buduj() -> void:
 		"misja": KMisja.buduj(self, _tresc, p)
 		"tawerna": KTawerna.buduj(self, _tresc, p)
 		"najemnik": KTawerna.najemnik(self, _tresc, p)
-		"sklep": KInne.sklep(self, _tresc, p)
+		"sklep": KSklep.buduj(self, _tresc, p)
 		"osiagniecia": KInne.osiagniecia(self, _tresc, p)
 		_: KHub.buduj(self, _tresc, p)
 	if poprzedni == nazwa and not przewiniecia.is_empty():

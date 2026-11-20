@@ -12,7 +12,8 @@ Stan: **szkielet mechaniki** — grywalny przepływ od prologu do pierwszych prz
    gracz strzałami z nieba pomaga pokonać szczury, strzelców, maga, Psy Chaosu i Zwierzoczłeka. Na piątej planszy
    Champion Chaosu — tej walki nie da się wygrać i tak ma być.
 3. **Koszary.** Lista bohaterów, formacja 2×5 (przeciąganie albo dotknięcia), karta bohatera z cechami WFRP,
-   awanse, umiejętności, specjalizacje, ekwipunek, wybór przygody i trudności.
+   awanse, umiejętności, specjalizacje, ekwipunek, wybór przygody i trudności. Sklep Gottfrieda Siegla: nowa dostawa po każdej misji
+   (zawsze broń, pancerz i wstęga ochronna + losowe okazje).
 4. **Walka automatyczna** na kolejnych planszach, boss co piątą, trzy przygody, trudności Normal / Hard / Hardcore.
 5. **Zapis gry** po każdej zmianie.
 

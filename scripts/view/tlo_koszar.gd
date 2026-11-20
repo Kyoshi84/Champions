@@ -22,6 +22,8 @@ static func dla(ekran: String) -> TloKoszar:
 	elif ekran in ["tawerna", "najemnik"]:
 		kandydaci = ["res://assets/ui/koszary/tawerna.png", "res://assets/levels/karczma/tlo.png"]
 		t.przyciemnienie = 0.72
+	elif ekran == "sklep":
+		kandydaci = ["res://assets/ui/koszary/sklep.png", "res://assets/ui/koszary/tlo.png"]
 	elif ekran in ["misje", "misja"]:
 		kandydaci = ["res://assets/ui/koszary/misje.png", "res://assets/levels/hufduhof/wies.png"]
 		t.przyciemnienie = 0.7

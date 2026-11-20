@@ -8,7 +8,7 @@ extends RefCounted
 
 ## Sloty wyposażenia rozstawione wokół postaci jak lokacje trafień na karcie (z rzutami k100 dla klimatu).
 const LEWE := [["helm", "01–15"], ["bron", "16–35"], ["rekawice", "81–90"]]
-const PRAWE := [["zbroja", "56–80"], ["dodatek", "36–55"], ["amulet", "91–00"]]
+const PRAWE := [["zbroja", "56–80"], ["dodatek", "36–55"], ["amulet", "91–00"], ["wstega", ""]]
 const RODZAJ_ATAKU := {"wrecz": "Wręcz", "dystans": "Dystansowy", "magia": "Magiczny"}
 
 static func buduj(k: BarracksScene, c: Control, p: Dictionary) -> void:

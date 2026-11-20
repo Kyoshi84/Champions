@@ -1,7 +1,7 @@
 {
-  "_opis": "Ekwipunek. slot: bron, dodatek, helm, zbroja, rekawice, amulet. cechy = dodatki do cech WFRP oraz 'bron' (obrażenia ataku), 'pancerz' (stała redukcja obrażeń fizycznych), 'odp_ogluszenie' (ułamek skrócenia ogłuszenia). tylko = lista bohaterów, którzy mogą to nosić (brak = wszyscy). loot = czy może wypaść z bossa.",
-  "sloty": ["bron", "dodatek", "helm", "zbroja", "rekawice", "amulet"],
-  "nazwy_slotow": { "bron": "Broń", "dodatek": "Tarcza / dodatek", "helm": "Hełm", "zbroja": "Zbroja", "rekawice": "Rękawice", "amulet": "Amulet" },
+  "_opis": "Ekwipunek. slot: bron, dodatek, helm, zbroja, rekawice, amulet, wstega. cechy = dodatki do cech WFRP oraz 'bron' (obrażenia ataku), 'pancerz' (stała redukcja obrażeń fizycznych), 'odp_ogluszenie' (ułamek skrócenia ogłuszenia). tylko = lista bohaterów, którzy mogą to nosić (brak = wszyscy). loot = czy może wypaść z bossa. sklep = czy kupiec może to wystawić, cena = koszt w koronach.",
+  "sloty": ["bron", "dodatek", "helm", "zbroja", "rekawice", "amulet", "wstega"],
+  "nazwy_slotow": { "bron": "Broń", "dodatek": "Tarcza / dodatek", "helm": "Hełm", "zbroja": "Zbroja", "rekawice": "Rękawice", "amulet": "Amulet", "wstega": "Wstęga ochronna" },
   "przedmioty": {
     "miecz_dwureczny": { "nazwa": "Miecz dwuręczny Gwardii", "slot": "bron", "rzadkosc": "common", "poziom": 1, "tylko": ["ivo"], "cechy": { "bron": 1.0, "WW": 2 }, "opis": "Służbowy zweihänder Szkarłatnej Gwardii." },
     "kaftan_gwardii": { "nazwa": "Kaftan Gwardii", "slot": "zbroja", "rzadkosc": "common", "poziom": 1, "cechy": { "pancerz": 0.5 }, "opis": "Czerwono-czarny, pikowany." },
@@ -22,6 +22,39 @@
     "kolczuga": { "nazwa": "Kolczuga", "slot": "zbroja", "rzadkosc": "rare", "poziom": 4, "loot": true, "cechy": { "pancerz": 1.5, "Odp": 3 }, "opis": "Ciężka, ale ratuje życie." },
     "helm_garnczkowy": { "nazwa": "Hełm garnczkowy", "slot": "helm", "rzadkosc": "rare", "poziom": 5, "loot": true, "cechy": { "pancerz": 1.0, "odp_ogluszenie": 0.4 }, "opis": "W środku słychać tylko własny oddech." },
     "pierscien_kupca": { "nazwa": "Sygnet kupca", "slot": "amulet", "rzadkosc": "epic", "poziom": 5, "loot": true, "cechy": { "Ogd": 12 }, "opis": "Otwiera drzwi i sakiewki." },
-    "runiczny_talizman": { "nazwa": "Runiczny talizman", "slot": "amulet", "rzadkosc": "legendary", "poziom": 8, "loot": true, "cechy": { "SW": 10, "Odp": 5, "Zyw": 3 }, "opis": "Krasnoludzka robota. Runy żarzą się w obecności Chaosu." }
+    "runiczny_talizman": { "nazwa": "Runiczny talizman", "slot": "amulet", "rzadkosc": "legendary", "poziom": 8, "loot": true, "cechy": { "SW": 10, "Odp": 5, "Zyw": 3 }, "opis": "Krasnoludzka robota. Runy żarzą się w obecności Chaosu." },
+
+    "kord_gwardii": { "nazwa": "Kord Gwardii", "slot": "bron", "rzadkosc": "common", "poziom": 1, "tylko": ["ivo", "borubar"], "sklep": true, "cena": 40, "cechy": { "bron": 1.0, "WW": 1, "K": 1 }, "opis": "Krótki, ciężki, wydawany ze zbrojowni Gwardii." },
+    "palka_debowa": { "nazwa": "Dębowa pałka", "slot": "bron", "rzadkosc": "common", "poziom": 1, "tylko": ["borubar", "ivo"], "sklep": true, "cena": 35, "cechy": { "bron": 1.0, "K": 1, "Odp": 1 }, "opis": "Karczemny argument ostateczny." },
+    "krotki_luk": { "nazwa": "Krótki łuk", "slot": "bron", "rzadkosc": "common", "poziom": 1, "tylko": ["modraszka"], "sklep": true, "cena": 40, "cechy": { "bron": 1.0, "US": 1, "Zr": 1 }, "opis": "Poręczny w ciasnych zaułkach Carroburga." },
+    "luk_jesionowy": { "nazwa": "Łuk jesionowy", "slot": "bron", "rzadkosc": "common", "poziom": 1, "tylko": ["modraszka"], "sklep": true, "cena": 40, "cechy": { "bron": 1.0, "US": 1, "Sz": 1 }, "opis": "Szybki naciąg, lekka cięciwa." },
+    "rozdzka_zarzewia": { "nazwa": "Różdżka Żarzewia", "slot": "bron", "rzadkosc": "common", "poziom": 1, "tylko": ["ursa"], "sklep": true, "cena": 45, "cechy": { "bron": 1.0, "Int": 1, "Op": 1 }, "opis": "Osmalona na końcu. Pachnie siarką." },
+    "przeszywanica": { "nazwa": "Przeszywanica", "slot": "zbroja", "rzadkosc": "common", "poziom": 1, "sklep": true, "cena": 35, "cechy": { "pancerz": 0.5, "Odp": 1, "Zyw": 1 }, "opis": "Watowany kaftan pod kolczugę - albo zamiast niej." },
+    "skorznia_zwiadowcy": { "nazwa": "Skórznia zwiadowcy", "slot": "zbroja", "rzadkosc": "common", "poziom": 1, "sklep": true, "cena": 35, "cechy": { "pancerz": 0.5, "Zr": 1, "Sz": 1 }, "opis": "Cicha i lekka." },
+    "oponcza_adepta": { "nazwa": "Opończa adepta", "slot": "zbroja", "rzadkosc": "common", "poziom": 1, "sklep": true, "cena": 35, "cechy": { "pancerz": 0.5, "SW": 1, "Int": 1 }, "opis": "Wyszywana w znaki, których lepiej nie czytać na głos." },
+    "wstega_sigmara": { "nazwa": "Wstęga Sigmara", "slot": "wstega", "rzadkosc": "common", "poziom": 1, "sklep": true, "cena": 25, "cechy": { "SW": 1, "Odp": 1 }, "opis": "Pieczęć z młotem. Odpędza złe myśli." },
+    "wstega_ulryka": { "nazwa": "Wstęga Ulryka", "slot": "wstega", "rzadkosc": "common", "poziom": 1, "sklep": true, "cena": 25, "cechy": { "WW": 1, "K": 1 }, "opis": "Wilczy znak na czarnym wosku." },
+    "wstega_myrmidii": { "nazwa": "Wstęga Myrmidii", "slot": "wstega", "rzadkosc": "common", "poziom": 1, "sklep": true, "cena": 25, "cechy": { "US": 1, "Zr": 1 }, "opis": "Modlitwa o pewną rękę i celne oko." },
+    "wstega_shallyi": { "nazwa": "Wstęga Shallyi", "slot": "wstega", "rzadkosc": "common", "poziom": 1, "sklep": true, "cena": 25, "cechy": { "Zyw": 1, "SW": 1 }, "opis": "Gołębica odciśnięta w białym wosku." },
+    "wstega_ranalda": { "nazwa": "Wstęga Ranalda", "slot": "wstega", "rzadkosc": "common", "poziom": 1, "sklep": true, "cena": 25, "cechy": { "Ogd": 1, "Op": 1 }, "opis": "Skrzyżowane palce. Na szczęście - i na korony." },
+    "wstega_vereny": { "nazwa": "Wstęga Vereny", "slot": "wstega", "rzadkosc": "common", "poziom": 1, "sklep": true, "cena": 25, "cechy": { "Int": 1, "Op": 1 }, "opis": "Sowa i waga. Dla tych, którzy myślą przed ciosem." },
+    "kapalin": { "nazwa": "Kapalin", "slot": "helm", "rzadkosc": "common", "poziom": 1, "sklep": true, "cena": 30, "cechy": { "Odp": 1, "CP": 1 }, "opis": "Szeroki okap, dobra widoczność pola bitwy." },
+    "rekawice_skorzane": { "nazwa": "Rękawice skórzane", "slot": "rekawice", "rzadkosc": "common", "poziom": 1, "sklep": true, "cena": 25, "cechy": { "WW": 1, "Zr": 1 }, "opis": "Mocny chwyt rękojeści." },
+    "karwasze_skorzane": { "nazwa": "Karwasze skórzane", "slot": "rekawice", "rzadkosc": "common", "poziom": 1, "sklep": true, "cena": 25, "cechy": { "US": 1, "Sz": 1 }, "opis": "Cięciwa nie parzy przedramienia." },
+    "puklerz": { "nazwa": "Puklerz", "slot": "dodatek", "rzadkosc": "common", "poziom": 1, "sklep": true, "cena": 30, "cechy": { "WW": 1, "Odp": 1 }, "opis": "Mała tarcza na pięść." },
+    "medalik_shallyi": { "nazwa": "Medalik Shallyi", "slot": "amulet", "rzadkosc": "common", "poziom": 1, "sklep": true, "cena": 30, "cechy": { "Zyw": 1, "SW": 1 }, "opis": "Cynowy, wytarty od modlitw." }
+  },
+  "sklep": {
+    "_opis": "Kram w Koszarach. Po każdej misji kampanii (wygranej albo przegranej) nowa dostawa: po jednym przedmiocie z każdego slotu 'stale' + 'dodatkowe' losowe z pozostałych slotów. Losowane są tylko przedmioty ze sklep=true, najchętniej te, które ktoś z drużyny może nosić. Kupiony przedmiot trafia do magazynu i znika z kramu do następnej dostawy.",
+    "stale": ["bron", "zbroja", "wstega"],
+    "dodatkowe": 2,
+    "kupiec": {
+      "imie": "Gottfried Siegel",
+      "tytul": "Herold i kramarz z Altdorfu",
+      "kram": "Kram Gottfrieda Siegla",
+      "grafika": "res://assets/ui/sklep/kupiec.png",
+      "powitanie": "Dobra stal, mocna skóra i wstęgi z pieczęcią, co odpędzą niejedno nieszczęście! Po każdej waszej wyprawie przywożę nowy towar — kto się waha, ten potem żałuje.",
+      "wyprzedane": "Wykupiliście wszystko, co miałem na wozie. Wróćcie po następnej misji — przywiozę nowy towar."
+    }
   }
 }

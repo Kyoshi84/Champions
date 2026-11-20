@@ -224,3 +224,59 @@ func test_karta_postaci_strony_i_sloty():
 	await klik("btn_wroc")
 	await klik("btn_rozwoj")
 	assert_eq(k.ekran(), "rozwoj", "przycisk Trening prowadzi do treningu")
+
+func test_sklep_oferta_zawsze_bron_pancerz_wstega():
+	var rng := RandomNumberGenerator.new()
+	for proba in 30:
+		rng.seed = proba
+		var o := Sklep.losuj_oferte(rng, Game.state["bohaterowie"].keys())
+		var sloty: Array = o.map(func(id): return str(Data.item(str(id))["slot"]))
+		for s in ["bron", "zbroja", "wstega"]:
+			assert_eq(sloty.count(s), 1, "dostawa %d ma dokładnie jeden przedmiot slotu %s" % [proba, s])
+		assert_eq(o.size(), 3 + int(Data.items["sklep"]["dodatkowe"]), "stałe + losowe okazje")
+		var bez_powtorzen := {}
+		for id in o:
+			bez_powtorzen[id] = true
+			assert_true(bool(Data.item(str(id)).get("sklep", false)), "tylko towar sklepowy")
+			assert_true(Sklep.przydatny(str(id), Game.state["bohaterowie"].keys()), "ktoś z drużyny może to nosić")
+		assert_eq(bez_powtorzen.size(), o.size(), "bez powtórzeń")
+
+func test_sklep_towar_ma_plus_jeden_do_cech():
+	for id in Sklep.pula(func(_it): return true):
+		var it := Data.item(str(id))
+		assert_gt(int(it.get("cena", 0)), 0, "%s ma cenę" % id)
+		for c in it["cechy"]:
+			if c in KW.CECHY:
+				assert_eq(int(it["cechy"][c]), 1, "%s: cecha %s +1" % [id, c])
+
+func test_sklep_zakup_i_nowa_dostawa_po_misji():
+	await klik("kafel_sklep")
+	assert_eq(k.ekran(), "sklep")
+	assert_not_null(k.find_child("kupiec", true, false), "kupiec ze zdjęcia na ekranie")
+	var oferta: Array = Game.sklep_oferta().duplicate()
+	var id := str(oferta[0])
+	var korony := int(Game.state["korony"])
+	await klik("btn_kup_" + id)
+	assert_eq(int(Game.state["korony"]), korony - Game.cena(id), "zakup kosztuje korony")
+	assert_true(Game.state["magazyn"].has(id), "przedmiot trafia do magazynu")
+	assert_null(k.znajdz("btn_kup_" + id), "kupiona pozycja jest wyprzedana")
+	assert_false(Game.kup_przedmiot(id), "drugi raz w tej dostawie się nie da")
+	var d := Game.sklep_dostawa()
+	Game.sklep_nowa_dostawa()
+	assert_eq(Game.sklep_dostawa(), d + 1, "po misji nowa dostawa")
+	assert_true(Game.state["sklep"]["kupione"].is_empty(), "nowa dostawa - nic jeszcze nie kupione")
+	# kupiony przedmiot da się założyć
+	var slot := str(Data.item(id)["slot"])
+	for h in Game.state["bohaterowie"]:
+		if Game.pasuje(id, h, slot):
+			assert_true(Game.zaloz(h, id))
+			assert_eq(str(Game.ekwipunek(h)[slot]), id)
+			break
+
+func test_sklep_bez_koron_przycisk_nieaktywny():
+	Game.state["korony"] = 0
+	k.idz("sklep")
+	await wait_frames(2)
+	var b := k.znajdz("btn_kup_" + str(Game.sklep_oferta()[0]))
+	assert_not_null(b)
+	assert_true(b.disabled, "nie stać - nie kupisz")
