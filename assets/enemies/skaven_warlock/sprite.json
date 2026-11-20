@@ -1,18 +1,18 @@
 {
  "canvas": [
-  96,
-  112
+  144,
+  128
  ],
  "pivot": [
-  48,
-  108
+  71,
+  124
  ],
  "fps": {
-  "idle": 3,
+  "idle": 2,
   "walk": 7,
   "attack": 0,
   "hurt": 1,
   "death": 6
  },
- "_opis": "fps=0 dla 'attack' oznacza: klatki rozk\u0142adane na czas zamachu (ostatnia = moment trafienia)."
+ "_opis": "Szczur Mag (Mnich Zarazy). Wróg patrzy na zachód (klatki odbite względem wersji east). fps=0 dla 'attack': klatki rozkładane na czas rzutu (ostatnia = moment trafienia, bomba leci jako pocisk z gry). Pivot = stopy."
 }
